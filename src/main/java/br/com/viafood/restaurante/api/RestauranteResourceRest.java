@@ -44,9 +44,12 @@ public class RestauranteResourceRest {
 	}
 
 	@PostMapping("/restaurantes")
-	public final ResponseEntity<Restaurante> save(@RequestBody final Restaurante restaurante) {
-		this.service.save(restaurante);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
+	public final ResponseEntity<?> save(@RequestBody final Restaurante restaurante) {
+		try {
+			return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(restaurante));			
+		}catch (EntidadeNaoEncontrada e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	@GetMapping("/restaurantes/{id}")

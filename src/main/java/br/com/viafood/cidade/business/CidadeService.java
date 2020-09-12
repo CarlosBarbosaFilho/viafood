@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.com.viafood.cidade.domain.repository;
+package br.com.viafood.cidade.business;
 
 import java.util.List;
 
@@ -11,8 +11,7 @@ import br.com.viafood.cidade.domain.model.Cidade;
  * @author cbgomes
  *
  */
-public interface CidadeRespository {
-
+public interface CidadeService {
 
 	public List<Cidade> list();
 

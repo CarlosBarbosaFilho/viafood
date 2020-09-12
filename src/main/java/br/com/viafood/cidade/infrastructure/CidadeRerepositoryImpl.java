@@ -1,13 +1,14 @@
 /**
  * 
  */
-package br.com.viafood.cidade.infrastructure.repository;
+package br.com.viafood.cidade.infrastructure;
 
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +32,8 @@ public class CidadeRerepositoryImpl implements CidadeRespository {
 
 	@Override
 	@Transactional
-	public void save(Cidade cidade) {
-		this.manager.merge(cidade);
+	public Cidade save(Cidade cidade) {
+		return this.manager.merge(cidade);
 	}
 
 	@Override
@@ -42,8 +43,12 @@ public class CidadeRerepositoryImpl implements CidadeRespository {
 
 	@Override
 	@Transactional
-	public void remove(Cidade cidade) {
-		this.manager.remove(this.getById(cidade.getId()));
+	public void remove(Long id) {
+		Cidade cidade = this.getById(id);
+		if(cidade == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
+		this.manager.remove(cidade);
 	}
 
 }

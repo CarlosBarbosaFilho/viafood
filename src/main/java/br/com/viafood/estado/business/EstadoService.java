@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.com.viafood.estado.domain.repository;
+package br.com.viafood.estado.business;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import br.com.viafood.estado.domain.model.Estado;
  * @author cbgomes
  *
  */
-public interface EstadoRepository {
+public interface EstadoService {
 
 
 	public List<Estado> list();

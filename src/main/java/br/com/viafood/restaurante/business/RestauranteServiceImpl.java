@@ -10,6 +10,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import br.com.viafood.cozinha.domain.model.Cozinha;
+import br.com.viafood.cozinha.domain.repository.CozinhaRepository;
 import br.com.viafood.cozinha.exception.EntidadeComDependencia;
 import br.com.viafood.cozinha.exception.EntidadeNaoEncontrada;
 import br.com.viafood.restaurante.domain.model.Restaurante;
@@ -23,10 +25,12 @@ import br.com.viafood.restaurante.domain.repository.RestauranteRepository;
 public class RestauranteServiceImpl implements RestauranteService {
 	
 	private RestauranteRepository repository;
+	private CozinhaRepository cozinhaRepository;
 	
 	@Autowired
-	public RestauranteServiceImpl(RestauranteRepository repository) {
+	public RestauranteServiceImpl(RestauranteRepository repository,CozinhaRepository cozinhaRepository ) {
 		this.repository = repository;
+		this.cozinhaRepository = cozinhaRepository;
 	}
 
 	@Override
@@ -35,8 +39,12 @@ public class RestauranteServiceImpl implements RestauranteService {
 	}
 
 	@Override
-	public void save(Restaurante restaurante) {
-		this.repository.save(restaurante);
+	public Restaurante save(Restaurante restaurante) {
+		if(existsCozinha(restaurante.getCozinha().getId())) {
+			 return this.repository.save(restaurante);			
+		}else {
+			throw new EntidadeNaoEncontrada(String.format("Cozinha com id %d não foi localizada ou não existe", restaurante.getCozinha().getId()));
+		}
 	}
 
 	@Override
@@ -59,4 +67,11 @@ public class RestauranteServiceImpl implements RestauranteService {
 		}
 	}
 
+	private boolean existsCozinha(Long idCozinha) {
+		Cozinha cozinha = this.cozinhaRepository.getById(idCozinha);
+		if(cozinha != null ) return true;
+		else {
+			return false;
+		}
+	}
 }

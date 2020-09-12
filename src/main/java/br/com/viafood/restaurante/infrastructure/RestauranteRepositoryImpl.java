@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.com.viafood.restaurante.infrastructure.repository;
+package br.com.viafood.restaurante.infrastructure;
 
 import java.util.List;
 
@@ -33,8 +33,8 @@ public class RestauranteRepositoryImpl implements RestauranteRepository {
 
 	@Override
 	@Transactional
-	public void save(Restaurante restaurante) {
-		this.manager.merge(restaurante);
+	public Restaurante save(Restaurante restaurante) {
+		return this.manager.merge(restaurante);
 	}
 
 	@Override

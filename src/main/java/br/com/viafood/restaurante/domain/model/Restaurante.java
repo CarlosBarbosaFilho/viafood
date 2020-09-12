@@ -35,7 +35,7 @@ public class Restaurante implements Serializable {
 	@EqualsAndHashCode.Include
 	private Long id;
 	
-	@Column(name = "nome_restaurante")
+	@Column(name = "nome_restaurante", nullable = false)
 	private String nome;
 	
 	@Column(name = "taxa_frete", nullable = false)

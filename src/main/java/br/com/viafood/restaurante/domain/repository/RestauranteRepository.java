@@ -15,7 +15,7 @@ public interface RestauranteRepository {
 
 	public List<Restaurante> list();
 
-	public void save(Restaurante restaurante);
+	public Restaurante save(Restaurante restaurante);
 
 	public Restaurante getById(Long id);
 
