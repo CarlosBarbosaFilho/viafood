@@ -23,7 +23,7 @@ public class ConsultarPermissaoPagamentoMain {
 
 		PermissaoRepository permissaoRepository = applicationContext.getBean(PermissaoRepository.class);
 		
-		permissaoRepository.list().stream().forEach(c -> {
+		permissaoRepository.findAll().stream().forEach(c -> {
 			System.out.println(">>>>>>>>>>>>>>>>> " + c.getDescricao());
 		});
 	

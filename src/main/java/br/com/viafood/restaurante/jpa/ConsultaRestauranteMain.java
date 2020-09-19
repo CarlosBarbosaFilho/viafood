@@ -23,7 +23,7 @@ public class ConsultaRestauranteMain {
 
 		RestauranteRepository restauranteRepository = applicationContext.getBean(RestauranteRepository.class);
 		
-		restauranteRepository.list().stream().forEach(c -> {
+		restauranteRepository.findAll().stream().forEach(c -> {
 			System.out.println(">>>>>>>>>>>>>>>>> " + c.getNome());
 		});
 	

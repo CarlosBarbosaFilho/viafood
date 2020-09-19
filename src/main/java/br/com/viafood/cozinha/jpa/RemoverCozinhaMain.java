@@ -24,7 +24,7 @@ public class RemoverCozinhaMain {
 		CozinhaRepository cozinhaRepository = applicationContext.getBean(CozinhaRepository.class);
 		
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> REMOVENDO UMA COZINHA NA BASE DE DADOS");
-		cozinhaRepository.remove(1L);
+		cozinhaRepository.deleteById(1L);
 		
 	}
 

@@ -4,6 +4,7 @@
 package br.com.viafood.estado.business;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,7 +33,7 @@ public class EstadoServiceImpl implements EstadoService {
 
 	@Override
 	public List<Estado> list() {
-		return this.repository.list();
+		return this.repository.findAll();
 	}
 
 	@Override
@@ -42,13 +43,18 @@ public class EstadoServiceImpl implements EstadoService {
 
 	@Override
 	public Estado getById(final Long id) {
-		return this.repository.getById(id);
+		Optional<Estado> estado = this.repository.findById(id);
+		if(estado.isPresent()) {
+			throw new EntidadeNaoEncontrada(
+					String.format("Entidade estado com %d não localizada ou não existe", id));
+		}
+		return estado.get();			
 	}
 
 	@Override
 	public void remove(final Long id) {
 		try {
-			this.repository.remove(id);
+			this.repository.deleteById(id);
 			
 		} catch (EmptyResultDataAccessException e) {
 			throw new EntidadeNaoEncontrada(

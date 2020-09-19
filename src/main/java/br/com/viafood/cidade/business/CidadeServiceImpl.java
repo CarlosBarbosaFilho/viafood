@@ -4,6 +4,7 @@
 package br.com.viafood.cidade.business;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -36,33 +37,35 @@ public class CidadeServiceImpl implements CidadeService {
 
 	@Override
 	public List<Cidade> list() {
-		return this.repository.list();
+		return this.repository.findAll();
 	}
 
 	@Override
 	public Cidade save(Cidade cidade) {
-
-		if (existsEstado(cidade.getEstado().getId())) {
-			return this.repository.save(cidade);
-		} else {
+		Long id = cidade.getEstado().getId();
+		Optional<Estado> estado = this.estadoRepository.findById(id);
+		if (estado.get() == null) {
 			throw new EntidadeNaoEncontrada(
-					String.format("Estado com id %d não foi localizada ou não existe", cidade.getEstado().getId()));
+					String.format("Endidade estado com id %d não pode ser localizada ou não existe", id));
 		}
+		cidade.setEstado(estado.get());
+		return this.repository.save(cidade);
 	}
 
 	@Override
 	public Cidade getById(Long id) {
-		Cidade cidade = this.repository.getById(id);
-		if (cidade == null) {
-			throw new EntidadeNaoEncontrada(String.format("Cidade com id %id não encontrada ou não existe", id));
+		Optional<Cidade> cidade = this.repository.findById(id);
+		if(cidade.isPresent()) {
+			throw new EntidadeNaoEncontrada(
+					String.format("Entidade cidade com %d não localizada ou não existe", id));
 		}
-		return cidade;
+		return cidade.get();
 	}
 
 	@Override
 	public void remove(Long id) {
 		try {
-			this.repository.remove(id);
+			this.repository.deleteById(id);
 
 		} catch (EmptyResultDataAccessException e) {
 			throw new EntidadeNaoEncontrada(String.format("Entidade com %d não pode ser localizada ou não existe", id));
@@ -72,17 +75,4 @@ public class CidadeServiceImpl implements CidadeService {
 					"Entidade com identificador %d não pode ser removida, existem dependências vinculadas ", id));
 		}
 	}
-
-	private boolean existsEstado(Long idEstado) {
-
-		Estado estado = this.estadoRepository.getById(idEstado);
-		if (estado == null) {
-			throw new EntidadeNaoEncontrada(
-					String.format("Endidade estado com id %d não pode ser localizada ou não existe", idEstado));
-		}
-
-		return true;
-
-	}
-
 }

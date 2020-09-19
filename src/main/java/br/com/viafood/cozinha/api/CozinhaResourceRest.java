@@ -31,7 +31,7 @@ import br.com.viafood.cozinha.exception.EntidadeNaoEncontrada;
 @RequestMapping(value = "/api/v1")
 public final class CozinhaResourceRest {
 
-	private CozinhaService service;
+	private final CozinhaService service;
 
 	@Autowired
 	public CozinhaResourceRest(final CozinhaService service) {
@@ -47,8 +47,27 @@ public final class CozinhaResourceRest {
 		return ResponseEntity.ok(cozinhas);
 	}
 
+	@PostMapping("/cozinhas")
+	public final ResponseEntity<Cozinha> save(@RequestBody final Cozinha cozinha) {
+		this.service.save(cozinha);
+		return ResponseEntity.status(HttpStatus.CREATED).build();
+	}
+
+	@PutMapping("/cozinhas/{id}")
+	public final ResponseEntity<Cozinha> edit(@PathVariable final Long id, @RequestBody final Cozinha cozinha) {
+		Cozinha cozinhaBase = this.service.getById(id);
+
+		if (cozinhaBase != null) {
+			BeanUtils.copyProperties(cozinha, cozinhaBase, "id");
+			this.service.save(cozinhaBase);
+
+			return ResponseEntity.ok(cozinhaBase);
+		}
+		return ResponseEntity.notFound().build();
+	}
+
 	@GetMapping("/cozinhas/{id}")
-	public final ResponseEntity<Cozinha> buscaPorId(@PathVariable final Long id) {
+	public final ResponseEntity<Cozinha> getById(@PathVariable final Long id) {
 		Cozinha cozinha = this.service.getById(id);
 		if (cozinha == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -56,37 +75,33 @@ public final class CozinhaResourceRest {
 			return ResponseEntity.ok(cozinha);
 		}
 	}
-
-	@PostMapping("/cozinhas")
-	public final ResponseEntity<Cozinha> salvar(@RequestBody final Cozinha cozinha) {
-		this.service.save(cozinha);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
-	}
-
-	@PutMapping("/cozinhas/{id}")
-	public final ResponseEntity<Cozinha> editar(@PathVariable final Long id, @RequestBody final Cozinha cozinha) {
-		Cozinha cozinhaBase = this.service.getById(id);
-
-		if (cozinhaBase != null) {
-			BeanUtils.copyProperties(cozinha, cozinhaBase, "id");
-			this.service.save(cozinhaBase);
-
+	
+	@GetMapping("/cozinhas/nome")
+	public final ResponseEntity<Cozinha> getByNome(String nome) {
+		Cozinha cozinha = this.service.getByNome(nome);
+		if (cozinha == null) {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		} else {
 			return ResponseEntity.ok(cozinha);
 		}
-		return ResponseEntity.notFound().build();
 	}
-
+	
+	@GetMapping("/cozinhas/exists")
+	public final boolean existCozinha(String nome) {
+		return this.service.existsCozinha(nome);
+	}
+	
 	@DeleteMapping("/cozinhas/{id}")
-	public final ResponseEntity<Cozinha> remover(@PathVariable final Long id) {
+	public final ResponseEntity<?> remove(@PathVariable final Long id) {
 		try {
 			this.service.remove(id);
 			return ResponseEntity.noContent().build();
 
-		} catch ( EntidadeNaoEncontrada e) {
+		} catch (EntidadeNaoEncontrada e) {
 			return ResponseEntity.notFound().build();
-			
+
 		} catch (EntidadeComDependencia e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}
 
 	}

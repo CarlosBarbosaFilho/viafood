@@ -20,5 +20,9 @@ public interface CozinhaService {
 	public Cozinha getById(Long id);
 
 	public void remove(Long id);
+	
+	public Cozinha getByNome(String nome);
+	
+	public boolean existsCozinha(String nome);
 
 }

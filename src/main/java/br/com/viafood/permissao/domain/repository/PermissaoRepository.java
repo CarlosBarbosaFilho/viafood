@@ -3,7 +3,7 @@
  */
 package br.com.viafood.permissao.domain.repository;
 
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import br.com.viafood.permissao.domain.model.Permissao;
 
@@ -11,13 +11,6 @@ import br.com.viafood.permissao.domain.model.Permissao;
  * @author cbgomes
  *
  */
-public interface PermissaoRepository {
+public interface PermissaoRepository extends JpaRepository<Permissao, Long>{
 
-	public List<Permissao> list();
-
-	public void save(Permissao permissao);
-
-	public Permissao getById(Long id);
-
-	public void remove(Permissao permissao);
 }

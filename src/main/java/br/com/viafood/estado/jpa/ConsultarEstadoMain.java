@@ -23,7 +23,7 @@ public class ConsultarEstadoMain {
 
 		EstadoRepository estadoRepository = applicationContext.getBean(EstadoRepository.class);
 		
-		estadoRepository.list().stream().forEach(c -> {
+		estadoRepository.findAll().stream().forEach(c -> {
 			System.out.println(">>>>>>>>>>>>>>>>> " + c.getNome());
 		});
 		

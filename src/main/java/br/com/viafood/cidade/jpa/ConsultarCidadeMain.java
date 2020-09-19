@@ -24,7 +24,7 @@ public class ConsultarCidadeMain {
 
 		CidadeRespository cidadeRepository = applicationContext.getBean(CidadeRespository.class);
 		
-		cidadeRepository.list().stream().forEach(c -> {
+		cidadeRepository.findAll().stream().forEach(c -> {
 			System.out.println(">>>>>>>>>>>>>>>>> " + c.getNome());
 		});
 		

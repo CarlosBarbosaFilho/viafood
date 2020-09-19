@@ -25,7 +25,7 @@ public class AlteracaoCozinhaMain {
 		CozinhaRepository cozinhaRepository = applicationContext.getBean(CozinhaRepository.class);
 		
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ALTERANDO UMA COZINHA NA BASE DE DADOS");
-		Cozinha cozinhaMexicana = cozinhaRepository.getById(1L);
+		Cozinha cozinhaMexicana = cozinhaRepository.getOne(1L);
 		cozinhaMexicana.setNome("Brasileira/Mexicana");
 		cozinhaRepository.save(cozinhaMexicana);
 		

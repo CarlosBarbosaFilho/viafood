@@ -4,17 +4,19 @@
 package br.com.viafood.cozinha.domain.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonRootName;
 
+import br.com.viafood.restaurante.domain.model.Restaurante;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -26,7 +28,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "tb_cozinhas")
-@JsonRootName("cozinha")
 public class Cozinha implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -37,4 +38,9 @@ public class Cozinha implements Serializable {
 	
 	@Column(name = "nome_cozinha")
 	private String nome;
+	
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "cozinha")
+	private List<Restaurante> restaurantes;
 }
