@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.viafood.cozinha.exception.EntidadeComDependencia;
-import br.com.viafood.cozinha.exception.EntidadeNaoEncontrada;
+import br.com.viafood.cozinha.exception.EntidadeNaoEncontradaException;
 import br.com.viafood.restaurante.business.RestauranteService;
 import br.com.viafood.restaurante.domain.model.Restaurante;
 
@@ -54,7 +54,7 @@ public class RestauranteResourceRest {
 	public final ResponseEntity<?> save(@RequestBody final Restaurante restaurante) {
 		try {
 			return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(restaurante));
-		} catch (EntidadeNaoEncontrada e) {
+		} catch (EntidadeNaoEncontradaException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
@@ -153,7 +153,7 @@ public class RestauranteResourceRest {
 			this.service.remove(id);
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-		} catch (EntidadeNaoEncontrada e) {
+		} catch (EntidadeNaoEncontradaException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
 		} catch (EntidadeComDependencia e) {

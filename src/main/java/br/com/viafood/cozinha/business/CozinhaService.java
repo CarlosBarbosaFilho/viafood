@@ -15,7 +15,7 @@ public interface CozinhaService {
 
 	public List<Cozinha> list();
 
-	public void save(Cozinha cozinha);
+	public Cozinha save(Cozinha cozinha);
 
 	public Cozinha getById(Long id);
 
@@ -24,5 +24,5 @@ public interface CozinhaService {
 	public Cozinha getByNome(String nome);
 	
 	public boolean existsCozinha(String nome);
-
+	
 }

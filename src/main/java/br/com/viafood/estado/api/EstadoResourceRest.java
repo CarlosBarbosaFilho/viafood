@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.viafood.cozinha.exception.EntidadeComDependencia;
-import br.com.viafood.cozinha.exception.EntidadeNaoEncontrada;
+import br.com.viafood.cozinha.exception.EntidadeNaoEncontradaException;
 import br.com.viafood.estado.business.EstadoService;
 import br.com.viafood.estado.domain.model.Estado;
 
@@ -79,7 +79,7 @@ public final class EstadoResourceRest {
 		} catch (EntidadeComDependencia e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 
-		} catch (EntidadeNaoEncontrada e) {
+		} catch (EntidadeNaoEncontradaException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 	}

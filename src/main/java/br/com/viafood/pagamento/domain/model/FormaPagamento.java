@@ -31,6 +31,6 @@ public class FormaPagamento implements Serializable{
 	@EqualsAndHashCode.Include
 	private Long id;
 	
-	@Column(name = "descricao_pagamento")
+	@Column(name = "descricao_forma_pagamento")
 	private String descricao;
 }

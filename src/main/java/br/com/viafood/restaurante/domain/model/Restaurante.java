@@ -12,7 +12,6 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,7 +26,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import br.com.viafood.cozinha.domain.model.Cozinha;
 import br.com.viafood.endereco.domain.Endereco;
@@ -55,7 +53,7 @@ public class Restaurante implements Serializable {
 	@Column(name = "nome_restaurante", nullable = false)
 	private String nome;
 
-	@Column(name = "taxa_frete", nullable = false)
+	@Column(name = "taxa_frete_restaurante", nullable = false)
 	private BigDecimal taxaFrete;
 
 //	@JsonIgnore
@@ -67,9 +65,9 @@ public class Restaurante implements Serializable {
 	@Embedded
 	private Endereco endereco;
 
-//	@JsonIgnore
+	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "tb_restautantes_formasPagamentos",
+	@JoinTable(name = "tb_restaurantes_formas_pagamentos",
 	joinColumns = @JoinColumn(name = "restaurante_id",
 	referencedColumnName = "id"), 
 	inverseJoinColumns = @JoinColumn(name = "forma_pagamento_id",

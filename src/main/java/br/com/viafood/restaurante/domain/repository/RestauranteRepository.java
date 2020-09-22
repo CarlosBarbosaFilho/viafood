@@ -29,7 +29,7 @@ public interface RestauranteRepository
 
 	public int countByCozinhaId(Long idCozinha);
 	
-	@Query("From Restaurante rs join fetch rs.cozinha left join fetch rs.formasPagamentos")
+	@Query("From Restaurante rs join fetch rs.cozinha")
 	public List<Restaurante> findAll();
 
 }

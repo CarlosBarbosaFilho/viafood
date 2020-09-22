@@ -4,7 +4,6 @@
 package br.com.viafood.cozinha.business;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,7 +13,8 @@ import org.springframework.stereotype.Service;
 import br.com.viafood.cozinha.domain.model.Cozinha;
 import br.com.viafood.cozinha.domain.repository.CozinhaRepository;
 import br.com.viafood.cozinha.exception.EntidadeComDependencia;
-import br.com.viafood.cozinha.exception.EntidadeNaoEncontrada;
+import br.com.viafood.cozinha.exception.EntidadeNaoEncontradaException;
+import br.com.viafood.utils.constantes.Constantes;
 
 /**
  * @author cbgomes
@@ -31,8 +31,8 @@ public class CozinhaServiceImpl implements CozinhaService {
 	}
 
 	@Override
-	public void save(final Cozinha cozinha) {
-		this.repository.save(cozinha);
+	public Cozinha save(final Cozinha cozinha) {
+		return this.repository.save(cozinha);
 	}
 
 	@Override
@@ -42,16 +42,18 @@ public class CozinhaServiceImpl implements CozinhaService {
 	
 	@Override
 	public Cozinha getByNome(final String nome) {
-		return this.repository.nomeContaining(nome);
+		Cozinha cozinha = this.repository.nomeContaining(nome);
+		if(cozinha == null) {
+			throw new EntidadeNaoEncontradaException(Constantes.ENTIDADE_NAO_ENCONTRADA);
+		}
+		return cozinha;			
 	}
 
 	@Override
-	public Cozinha getById(final Long id) {
-		Optional<Cozinha> cozinha = repository.findById(id);
-		if (cozinha.isEmpty()) {
-			throw new EntidadeNaoEncontrada(String.format("Entidade cozinha com %d não localizada ou não existe", id));
-		}
-		return cozinha.get();
+	public Cozinha getById(Long id) {
+		return this.repository.findById(id)
+				.orElseThrow(() -> new EntidadeNaoEncontradaException(
+						String.format(Constantes.ENTIDADE_NAO_ENCONTRADA,id)));
 	}
 
 	@Override
@@ -61,10 +63,10 @@ public class CozinhaServiceImpl implements CozinhaService {
 			
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeComDependencia(
-					String.format("Entidade com identificador %d não pode ser removida, existem dependências vinculadas ", id));
+					String.format(Constantes.ENTIDADE_DEPENDÊNCIAS_VINCULADAS, id));
 		
 		}catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontrada(String.format("Entidade com %d não pode ser localizada ou não existe", id));
+			throw new EntidadeNaoEncontradaException(String.format(Constantes.ENTIDADE_NAO_ENCONTRADA, id));
 			
 		} 
 	}
@@ -73,5 +75,5 @@ public class CozinhaServiceImpl implements CozinhaService {
 	public boolean existsCozinha(String nome) {
 		return this.repository.existsByNome(nome);
 	}
-
+	
 }

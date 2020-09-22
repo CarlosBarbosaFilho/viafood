@@ -4,6 +4,7 @@
 package br.com.viafood.cozinha.api;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.viafood.cozinha.business.CozinhaService;
 import br.com.viafood.cozinha.domain.model.Cozinha;
-import br.com.viafood.cozinha.exception.EntidadeComDependencia;
-import br.com.viafood.cozinha.exception.EntidadeNaoEncontrada;
 
 /**
  * @author cbgomes
@@ -39,70 +39,47 @@ public final class CozinhaResourceRest {
 	}
 
 	@GetMapping("/cozinhas")
-	public final ResponseEntity<List<Cozinha>> list() {
-		List<Cozinha> cozinhas = this.service.list();
-		if (cozinhas.isEmpty()) {
-			return ResponseEntity.ok().build();
-		}
-		return ResponseEntity.ok(cozinhas);
+	@ResponseStatus(value = HttpStatus.OK)
+	public final List<Cozinha> list() {
+		return this.service.list();
 	}
 
 	@PostMapping("/cozinhas")
-	public final ResponseEntity<Cozinha> save(@RequestBody final Cozinha cozinha) {
-		this.service.save(cozinha);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public final Cozinha save(@RequestBody final Cozinha cozinha) {
+		return this.service.save(cozinha);
 	}
 
 	@PutMapping("/cozinhas/{id}")
-	public final ResponseEntity<Cozinha> edit(@PathVariable final Long id, @RequestBody final Cozinha cozinha) {
+	@ResponseStatus(value = HttpStatus.OK)
+	public final Cozinha edit(@PathVariable final Long id, @RequestBody final Cozinha cozinha) {
 		Cozinha cozinhaBase = this.service.getById(id);
 
-		if (cozinhaBase != null) {
-			BeanUtils.copyProperties(cozinha, cozinhaBase, "id");
-			this.service.save(cozinhaBase);
-
-			return ResponseEntity.ok(cozinhaBase);
-		}
-		return ResponseEntity.notFound().build();
+		BeanUtils.copyProperties(cozinha, cozinhaBase, "id");
+		return this.service.save(cozinhaBase);
 	}
 
 	@GetMapping("/cozinhas/{id}")
-	public final ResponseEntity<Cozinha> getById(@PathVariable final Long id) {
-		Cozinha cozinha = this.service.getById(id);
-		if (cozinha == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		} else {
-			return ResponseEntity.ok(cozinha);
-		}
+	@ResponseStatus(value = HttpStatus.OK)
+	public final Cozinha getById(@PathVariable final Long id) {
+		return this.service.getById(id);
 	}
-	
+
 	@GetMapping("/cozinhas/nome")
-	public final ResponseEntity<Cozinha> getByNome(String nome) {
-		Cozinha cozinha = this.service.getByNome(nome);
-		if (cozinha == null) {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-		} else {
-			return ResponseEntity.ok(cozinha);
-		}
+	@ResponseStatus(value = HttpStatus.OK)
+	public final Cozinha getByNome(String nome) {
+		return this.service.getByNome(nome);
 	}
-	
+
 	@GetMapping("/cozinhas/exists")
+	@ResponseStatus(value = HttpStatus.OK)
 	public final boolean existCozinha(String nome) {
 		return this.service.existsCozinha(nome);
 	}
-	
+
 	@DeleteMapping("/cozinhas/{id}")
-	public final ResponseEntity<?> remove(@PathVariable final Long id) {
-		try {
-			this.service.remove(id);
-			return ResponseEntity.noContent().build();
-
-		} catch (EntidadeNaoEncontrada e) {
-			return ResponseEntity.notFound().build();
-
-		} catch (EntidadeComDependencia e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-		}
-
+	@ResponseStatus(value = HttpStatus.NO_CONTENT)
+	public final void remove(@PathVariable final Long id) {
+		this.service.remove(id);
 	}
 }

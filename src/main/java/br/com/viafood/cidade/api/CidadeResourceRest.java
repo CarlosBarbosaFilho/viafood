@@ -16,11 +16,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.viafood.cidade.business.CidadeService;
 import br.com.viafood.cidade.domain.model.Cidade;
-import br.com.viafood.cozinha.exception.EntidadeNaoEncontrada;
+import br.com.viafood.cozinha.exception.EntidadeNaoEncontradaException;
 
 /**
  * @author carlosfilho
@@ -38,52 +39,40 @@ public class CidadeResourceRest {
 	}
 
 	@GetMapping("/cidades")
-	public final ResponseEntity<List<Cidade>> list() {
-		return ResponseEntity.status(HttpStatus.OK).body(this.service.list());
+	@ResponseStatus(value = HttpStatus.OK)
+	public final List<Cidade> list() {
+		return this.service.list();
 	}
 
 	@PostMapping("/cidades")
-	public final ResponseEntity<?> save(@RequestBody final Cidade cidade) {
-		try {
-			return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(cidade));
-
-		} catch (EntidadeNaoEncontrada e) {
-			return ResponseEntity.badRequest().body("Estado não pode ser nulo");
-		}
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public final Cidade save(@RequestBody final Cidade cidade) {
+		return this.service.save(cidade);
 	}
-	
+
 	@PutMapping("/cidades/{id}")
-	public final ResponseEntity<?> edit(@PathVariable final Long id, @RequestBody final Cidade cidade){
-		try {			
-			Cidade cidadeBase = this.service.getById(id);
-			if(cidadeBase != null ) {
-				BeanUtils.copyProperties(cidade, cidadeBase, "id");
-				cidadeBase = this.service.save(cidadeBase);
-				return ResponseEntity.status(HttpStatus.CREATED).body(cidadeBase);
-			}
-			return ResponseEntity.notFound().build();
-			
-		}catch (EntidadeNaoEncontrada e) {
-			return ResponseEntity.badRequest().body("Cidade não localizada ou não existe");
-		}
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public final Cidade edit(@PathVariable final Long id, @RequestBody final Cidade cidade) {
+		Cidade cidadeBase = this.service.getById(id);
+		
+		BeanUtils.copyProperties(cidade, cidadeBase, "id");
+		this.service.save(cidadeBase);
+
+		return cidadeBase;
 	}
 
 	@GetMapping("/cidades/{id}")
-	public final ResponseEntity<Cidade> getById(@PathVariable final Long id){
-		Cidade cidade = this.service.getById(id);
-		if (cidade == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		} else {
-			return ResponseEntity.ok(cidade);
-		}
+
+	public final Cidade getById(@PathVariable final Long id) {
+		return this.service.getById(id);
 	}
-	
+
 	@DeleteMapping("/cidades/{id}")
 	public final ResponseEntity<Cidade> remove(@PathVariable final Long id) {
 		try {
 			this.service.remove(id);
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-		}catch (EntidadeNaoEncontrada e) {
+		} catch (EntidadeNaoEncontradaException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 	}

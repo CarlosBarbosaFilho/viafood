@@ -14,7 +14,10 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import br.com.viafood.cidade.domain.model.Cidade;
+import br.com.viafood.item_pedido.domain.model.ItemPedido;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -38,6 +41,7 @@ public class Estado implements Serializable {
 	@Column(name = "nome_estado")
 	private String nome;
 	
-	@OneToMany
+	@JsonIgnore
+	@OneToMany(targetEntity = Cidade.class, mappedBy = "estado")
 	private List<Cidade> cidades;
 }
