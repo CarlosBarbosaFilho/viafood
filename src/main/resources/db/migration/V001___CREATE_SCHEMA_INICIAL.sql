@@ -1,7 +1,7 @@
 ####### CRIANDO A TABELA DOS ESTADOS ################
 create table tb_estados (
 	id bigint not null auto_increment,
-	nome_estado varchar (100) not null,
+	nome varchar (100) not null,
 	
 	primary key (id)
 );
@@ -9,7 +9,7 @@ create table tb_estados (
 ####### CRIANDO A TABELA DAS CIDADES ################
 create table tb_cidades (
 	id bigint not null auto_increment,
-	nome_cidade varchar (100) not null,
+	nome varchar (100) not null,
 	estado_id bigint not null,
 	
 	foreign key (estado_id) references tb_estados (id),
@@ -20,7 +20,7 @@ create table tb_cidades (
 ####### CRIANDO A TABELA DAS FORMAS DE PAGAMENTO ######
 create table tb_formas_pagamentos (
 	id bigint not null auto_increment,
-	descricao_forma_pagamento varchar (100) not null,
+	descricao varchar (100) not null,
 	
 	primary key (id)
 );
@@ -28,7 +28,7 @@ create table tb_formas_pagamentos (
 ####### CRIANDO A TABELA DAS COZINHAS ##################
 create table tb_cozinhas (
 	id bigint not null auto_increment,
-	nome_cozinha varchar (100) not null,
+	nome varchar (100) not null,
 	
 	primary key (id)
 );
@@ -36,8 +36,8 @@ create table tb_cozinhas (
 ####### CRIANDO A TABELA DOS RESTAURANTES ################
 create table tb_restaurantes (
 	id bigint not null auto_increment,
-	taxa_frete_restaurante decimal (10,2) not null,
-	nome_restaurante varchar (100) not null,
+	taxa_frete decimal (10,2) not null,
+	nome varchar (100) not null,
 	
 	endereco_cep varchar (30),
 	endereco_logradouro varchar (100),
@@ -70,9 +70,9 @@ create table tb_restaurantes_formas_pagamentos (
 ####### CRIANDO A TABELA DOS PRODUTPS ###########################
 create table tb_produtos (
 	id bigint not null auto_increment,
-	nome_produto varchar (100) not null,
-	descricao_produto varchar (255) not null,
-	preco_produto decimal (10,2) not null,
+	nome varchar (100) not null,
+	descricao varchar (255) not null,
+	preco decimal (10,2) not null,
 	ativo tinyint(1) not null,
 	restaurante_id bigint not null,
 	
@@ -85,12 +85,12 @@ create table tb_produtos (
 create table tb_pedidos (
 	id bigint not null auto_increment,
 	subtotal decimal not null,
-	taxa_frete_pedido decimal not null,
-	valor_total_pedido decimal not null,
-	data_cadastro_pedido date not null,
-	data_confirmacao_pedido date not null,
-	data_cancelamento_pedido date,
-	data_entrega_pedido date,
+	taxa_frete decimal not null,
+	valor_total decimal not null,
+	data_cadastro datetime not null,
+	data_confirmacao datetime not null,
+	data_cancelamentoo datetime,
+	data_entrega_pedido datetime,
 	
 	endereco_cep varchar (30),
 	endereco_logradouro varchar (200),
@@ -113,10 +113,10 @@ create table tb_pedidos (
 ####### CRIANDO A TABELA DOS ITENS PEDIDOS ########################
 create table tb_itens_pedidos (
 	id bigint not null auto_increment,
-	quantidade_itens integer not null,
+	quantidade integer not null,
 	preco_unitario  decimal not null,
-	preco_total_itens decimal not null,
-	observacao_itnes varchar (255),
+	preco_total decimal not null,
+	observacao varchar (255),
 	pedido_id bigint not null,
 	produto_id bigint not null,
 	

@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import br.com.viafood.cozinha.domain.model.Cozinha;
 import br.com.viafood.cozinha.domain.repository.CozinhaRepository;
-import br.com.viafood.cozinha.exception.EntidadeComDependencia;
-import br.com.viafood.cozinha.exception.EntidadeNaoEncontradaException;
+import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
+import br.com.viafood.exceptions.exception.EntidadeComDependencia;
 import br.com.viafood.utils.constantes.Constantes;
 
 /**
@@ -44,7 +44,7 @@ public class CozinhaServiceImpl implements CozinhaService {
 	public Cozinha getByNome(final String nome) {
 		Cozinha cozinha = this.repository.nomeContaining(nome);
 		if(cozinha == null) {
-			throw new EntidadeNaoEncontradaException(Constantes.ENTIDADE_NAO_ENCONTRADA);
+			throw new CozinhaNaoEncontradaException(nome);
 		}
 		return cozinha;			
 	}
@@ -52,8 +52,7 @@ public class CozinhaServiceImpl implements CozinhaService {
 	@Override
 	public Cozinha getById(Long id) {
 		return this.repository.findById(id)
-				.orElseThrow(() -> new EntidadeNaoEncontradaException(
-						String.format(Constantes.ENTIDADE_NAO_ENCONTRADA,id)));
+				.orElseThrow(() -> new CozinhaNaoEncontradaException(id));
 	}
 
 	@Override
@@ -63,10 +62,10 @@ public class CozinhaServiceImpl implements CozinhaService {
 			
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeComDependencia(
-					String.format(Constantes.ENTIDADE_DEPENDÊNCIAS_VINCULADAS, id));
+					String.format(Constantes.ENTIDADE_DEPENDENCIAS_VINCULADAS, id));
 		
 		}catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(String.format(Constantes.ENTIDADE_NAO_ENCONTRADA, id));
+			throw new CozinhaNaoEncontradaException(id);
 			
 		} 
 	}

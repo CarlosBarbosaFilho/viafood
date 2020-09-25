@@ -43,37 +43,37 @@ public class Pedido {
 
 	private BigDecimal subTotal;
 
-	@Column(name = "taxa_frete_pedido")
+	@Column(nullable = false)
 	private BigDecimal taxaFrete;
 
-	@Column(name = "valor_total_pedido")
+	@Column(nullable = false)
 	private BigDecimal valorTotal;
 
-	@Column(name = "data_cadastro_pedido")
+	@Column(nullable = false)
 	private LocalDateTime dataCadatro;
 
-	@Column(name = "data_confirmacao_pedido")
+	@Column(nullable = false)
 	private LocalDateTime dataConfirmacao;
 
-	@Column(name = "data_cancelamento_pedido")
+	@Column(nullable = false)
 	private LocalDateTime dataCancelemento;
 
-	@Column(name = "data_entrega_pedido")
+	@Column(nullable = false)
 	private LocalDateTime dataEntrega;
 
 	@OneToOne
-	@JoinColumn(name = "restaurante_id", nullable = false)
+	@JoinColumn(nullable = false)
 	private Restaurante restaurante;
 
 	@OneToOne
-	@JoinColumn(name = "forma_pagamento_id", nullable = false)
+	@JoinColumn(nullable = false)
 	private FormaPagamento formaPagamento;
 
 	@OneToOne
 	@JoinColumn(name = "usuario_cliente_id", nullable = false)
 	private Usuario usuario;
 
-	@OneToMany(targetEntity = ItemPedido.class, mappedBy = "pedido")
+	@OneToMany(mappedBy = "pedido")
 	private List<ItemPedido> itensPedidos;
 
 	@Embedded

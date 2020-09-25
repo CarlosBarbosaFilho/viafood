@@ -8,10 +8,17 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,12 +28,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.com.viafood.cozinha.exception.EntidadeComDependencia;
-import br.com.viafood.cozinha.exception.EntidadeNaoEncontradaException;
+import br.com.viafood.exceptions.exception.BusinessException;
+import br.com.viafood.exceptions.exception.EntidadeComDependencia;
+import br.com.viafood.exceptions.exception.EntidadeNaoEncontradaException;
 import br.com.viafood.restaurante.business.RestauranteService;
 import br.com.viafood.restaurante.domain.model.Restaurante;
 
@@ -46,102 +57,103 @@ public class RestauranteResourceRest {
 	}
 
 	@GetMapping("/restaurantes")
-	public final ResponseEntity<List<Restaurante>> list() {
-		return ResponseEntity.ok(this.service.list());
+	@ResponseStatus(value = HttpStatus.OK)
+	public final List<Restaurante> list() {
+		return this.service.list();
 	}
 
 	@PostMapping("/restaurantes")
-	public final ResponseEntity<?> save(@RequestBody final Restaurante restaurante) {
-		try {
-			return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(restaurante));
-		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public final Restaurante save(@RequestBody final Restaurante restaurante) {
+		return this.service.save(restaurante);
 	}
 
 	@PutMapping("/restaurantes/{id}")
-	public final ResponseEntity<?> edit(@PathVariable final Long id, @RequestBody final Restaurante restaurante) {
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public final Restaurante edit(@PathVariable final Long id, @RequestBody final Restaurante restaurante) {
 		Restaurante restauranteBase = this.service.getById(id);
-		if (restauranteBase != null) {
-			BeanUtils.copyProperties(restaurante, restauranteBase, "id","formasPagamentos","endereco", "dataCadastro");
+		BeanUtils.copyProperties(restaurante, restauranteBase, "id", "formasPagamentos", "endereco", "dataCadastro");
+
+		try {
 			Restaurante rt = this.service.save(restauranteBase);
-			return ResponseEntity.ok(rt);
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+			return rt;
+		} catch (EntidadeNaoEncontradaException e) {
+			throw new BusinessException(e.getMessage());
 		}
 	}
 
 	@PatchMapping("/restaurantes/{id}")
-	public final ResponseEntity<?> editPart(@PathVariable final Long id,
-			@RequestBody final Map<String, Object> fieldsRequest) {
-
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public final Restaurante editPart(@PathVariable final Long id, @RequestBody final Map<String, Object> fieldsRequest,
+			HttpServletRequest request) {
+		
 		Restaurante restaurante = this.service.getById(id);
-		if (restaurante == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
-		mergePath(fieldsRequest, restaurante);
-
+		mergePath(fieldsRequest, restaurante, request);
 		return edit(id, restaurante);
+
 	}
 
-	private void mergePath(final Map<String, Object> fieldsResquest, Restaurante restauranteUpdated) {
+	private void mergePath(final Map<String, Object> fieldsResquest, Restaurante restauranteUpdated,
+			HttpServletRequest request) {
 
-		ObjectMapper objectMapper = new ObjectMapper();
-		// INSTANCIA CRIADA PRA EVITAR A CONVERSÃO DOS VALORES NA ATUALIZAÇÃO DE CAMPOS
-		// DISTINTOS
-		Restaurante restauranteCreatedWithFieldsRequest = objectMapper.convertValue(fieldsResquest, Restaurante.class);
+		ServletServerHttpRequest serverHttpRequest = new ServletServerHttpRequest(request);
 
-		fieldsResquest.forEach((nomePropriedade, valorPropriedade) -> {
-			Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
-			field.setAccessible(true);
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			Restaurante restauranteCreatedWithFieldsRequest = objectMapper.convertValue(fieldsResquest,
+					Restaurante.class);
 
-			Object newVelueField = ReflectionUtils.getField(field, restauranteCreatedWithFieldsRequest);
+			fieldsResquest.forEach((nomePropriedade, valorPropriedade) -> {
+				Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
+				field.setAccessible(true);
 
-			ReflectionUtils.setField(field, restauranteUpdated, newVelueField);
-		});
+				Object newVelueField = ReflectionUtils.getField(field, restauranteCreatedWithFieldsRequest);
+
+				ReflectionUtils.setField(field, restauranteUpdated, newVelueField);
+			});
+		} catch (IllegalArgumentException e) {
+			Throwable rootCause = ExceptionUtils.getRootCause(e);
+			throw new HttpMessageNotReadableException(e.getMessage(), rootCause, serverHttpRequest);
+		}
 	}
 
 	@GetMapping("/restaurantes/{id}")
-	public final ResponseEntity<Restaurante> getById(@PathVariable final Long id) {
-		Restaurante restaurante = this.service.getById(id);
-		if (restaurante == null) {
-			return ResponseEntity.notFound().build();
-		} else {
-			return ResponseEntity.ok(restaurante);
-		}
+	@ResponseStatus(value = HttpStatus.OK)
+	public final Restaurante getById(@PathVariable final Long id) {
+		return this.service.getById(id);
 	}
-	
+
 	@GetMapping("/restaurantes/first")
-	public final ResponseEntity<Restaurante> getFirstRestaurante(){
+	public final ResponseEntity<Restaurante> getFirstRestaurante() {
 		return ResponseEntity.ok(this.service.buscaPrimeiroCadastro());
 	}
 
 	@GetMapping("/restaurantes/taxa-frete")
-	public final ResponseEntity<List<Restaurante>> listRestauranteByBetWeenTaxas( BigDecimal taxa_inicial , BigDecimal taxa_final ){
-		List<Restaurante> restaurantes = 
-		 this.service.listaRestaurantesPorFaixaDeTaxaFrete(taxa_inicial, taxa_final);
-		return ResponseEntity.ok(restaurantes);
+	@ResponseStatus(value = HttpStatus.OK)
+	public final List<Restaurante> listRestauranteByBetWeenTaxas(BigDecimal taxa_inicial, BigDecimal taxa_final) {
+		List<Restaurante> restaurantes = this.service.listaRestaurantesPorFaixaDeTaxaFrete(taxa_inicial, taxa_final);
+		return restaurantes;
 	}
-	
+
 	@GetMapping("/restaurantes/nome-taxa-frete")
-	public final ResponseEntity<List<Restaurante>> listRestaurantePorNomeETaxaFrte(String nome, BigDecimal taxa_inicial , BigDecimal taxa_final ){
-		List<Restaurante> restaurantes = 
-		 this.service.recuperaRestaurantePorNomeEFaixaDeFrete(nome, taxa_inicial, taxa_final);
+	public final ResponseEntity<List<Restaurante>> listRestaurantePorNomeETaxaFrte(String nome, BigDecimal taxa_inicial,
+			BigDecimal taxa_final) {
+		List<Restaurante> restaurantes = this.service.recuperaRestaurantePorNomeEFaixaDeFrete(nome, taxa_inicial,
+				taxa_final);
 		return ResponseEntity.ok(restaurantes);
 	}
-	
+
 	@GetMapping("/restaurantes/nome-cozinha")
-	public final ResponseEntity<List<Restaurante>> listaRestaurantePorNomeEIdCozinha(String nome, Long idCozinha){
-		List<Restaurante> restaurantes = 
-				this.service.listaRestaurantePorNomeECozinha(nome, idCozinha);
+	public final ResponseEntity<List<Restaurante>> listaRestaurantePorNomeEIdCozinha(String nome, Long idCozinha) {
+		List<Restaurante> restaurantes = this.service.listaRestaurantePorNomeECozinha(nome, idCozinha);
 		return ResponseEntity.ok(restaurantes);
 	}
-	
+
 	@GetMapping("/restaurantes/count")
 	public final int countRestaurantesCozinhas(Long idCozinha) {
 		return this.service.countCozinhas(idCozinha);
 	}
-	
+
 	@GetMapping("/restaurantes/frete-free")
 	public final List<Restaurante> restaurantesDeliveryFree(String nome) {
 		return this.service.listRestauranteFreteGratis(nome);

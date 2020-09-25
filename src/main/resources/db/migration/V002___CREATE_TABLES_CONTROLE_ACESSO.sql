@@ -1,8 +1,8 @@
 ####### CRIANDO A TABELA DAS PERMISSÕES ################
 create table tb_permissoes (
 	id bigint not null auto_increment,
-	nome_permissao varchar (50) not null,
-	descricao_permissao varchar (255) not null,
+	nome varchar (50) not null,
+	descricao varchar (255) not null,
 	
 	primary key (id)
 );
@@ -11,7 +11,7 @@ create table tb_permissoes (
 ####### CRIANDO A TABELA DOS GRUPOS ######################
 create table tb_grupos (
 	id bigint not null auto_increment,
-	nome_grupo varchar (50) not null,
+	nome varchar (50) not null,
 	
 	primary key (id)
 );
@@ -27,9 +27,9 @@ create table tb_grupos_permissoes (
 ####### CRIANDO A TABELA DOS USUARIOS ######################
 create table tb_usuarios (
 	id bigint not null auto_increment,
-	nome_usuario varchar (200) not  null,
-	email_usuario varchar (200) not null,
-	senha_usuario varchar (20) not null,
+	nome varchar (200) not  null,
+	email varchar (200) not null,
+	senha varchar (20) not null,
 	data_cadastro datetime not null,
 	
 	primary key (id)

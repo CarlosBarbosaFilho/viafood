@@ -4,17 +4,16 @@
 package br.com.viafood.estado.business;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import br.com.viafood.cozinha.exception.EntidadeComDependencia;
-import br.com.viafood.cozinha.exception.EntidadeNaoEncontradaException;
 import br.com.viafood.estado.domain.model.Estado;
 import br.com.viafood.estado.domain.repository.EstadoRepository;
+import br.com.viafood.estado.exception.EstadoNaoEcontradoException;
+import br.com.viafood.exceptions.exception.EntidadeComDependencia;
+import br.com.viafood.utils.constantes.Constantes;
 
 /**
  * @author cbgomes
@@ -43,26 +42,20 @@ public class EstadoServiceImpl implements EstadoService {
 
 	@Override
 	public Estado getById(final Long id) {
-		Optional<Estado> estado = this.repository.findById(id);
-		if(estado.isPresent()) {
-			throw new EntidadeNaoEncontradaException(
-					String.format("Entidade estado com %d não localizada ou não existe", id));
-		}
-		return estado.get();			
+		return this.repository.findById(id).orElseThrow(() -> {
+			throw new EstadoNaoEcontradoException(id);
+		});
 	}
 
 	@Override
 	public void remove(final Long id) {
 		try {
-			this.repository.deleteById(id);
-			
-		} catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(
-					String.format("Entidade estado com %d não localizada ou não existe", id));
-			
+			this.repository.delete(this.repository.findById(id).orElseThrow(() -> {
+				throw new EstadoNaoEcontradoException(id);
+			}));
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeComDependencia(
-					String.format("Entidade com %d não pode ser removida, existem dependências vinculdas", id));
+					String.format(Constantes.ENTIDADE_DEPENDENCIAS_VINCULADAS, id));
 		}
 	}
 

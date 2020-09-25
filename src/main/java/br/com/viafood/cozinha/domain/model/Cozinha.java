@@ -4,6 +4,7 @@
 package br.com.viafood.cozinha.domain.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -36,11 +37,10 @@ public class Cozinha implements Serializable {
 	@EqualsAndHashCode.Include
 	private Long id;
 	
-	@Column(name = "nome_cozinha")
+	@Column(nullable = false)
 	private String nome;
-	
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "cozinha")
-	private List<Restaurante> restaurantes;
+	private List<Restaurante> restaurantes = new ArrayList<Restaurante>();
 }

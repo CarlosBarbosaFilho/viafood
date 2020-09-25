@@ -9,15 +9,14 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import br.com.viafood.cozinha.domain.model.Cozinha;
 import br.com.viafood.cozinha.domain.repository.CozinhaRepository;
-import br.com.viafood.cozinha.exception.EntidadeComDependencia;
-import br.com.viafood.cozinha.exception.EntidadeNaoEncontradaException;
+import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
+import br.com.viafood.exceptions.exception.EntidadeComDependencia;
 import br.com.viafood.restaurante.domain.model.Restaurante;
 import br.com.viafood.restaurante.domain.repository.RestauranteRepository;
+import br.com.viafood.restaurante.exception.RestauranteNaoEncotradoExeption;
 import br.com.viafood.restaurante.infrastructure.specification.RestauranteSpec;
 
 /**
@@ -48,32 +47,25 @@ public class RestauranteServiceImpl implements RestauranteService {
 
 	@Override
 	public Restaurante save(Restaurante restaurante) {
+		restaurante.setCozinha(this.cozinhaRepository.findById(restaurante.getCozinha().getId())
+				.orElseThrow(() -> new CozinhaNaoEncontradaException(restaurante.getCozinha().getId())));
 
-		Cozinha cozinha = this.cozinhaRepository.findById(restaurante.getCozinha().getId()).orElseThrow(
-				() -> new EntidadeNaoEncontradaException(String.format("Cozinha com id %d não foi localizada ou não existe",
-						restaurante.getCozinha().getId())));
-
-		restaurante.setCozinha(cozinha);
 		return this.repository.save(restaurante);
 	}
 
 	@Override
 	public Restaurante getById(Long id) {
-		Optional<Restaurante> restaurante = this.repository.findById(id);
-		if (!restaurante.isPresent()) {
-			throw new EntidadeNaoEncontradaException(
-					String.format("Entidade restaurante com %d não localizada ou não existe", id));
-		}
-		return restaurante.get();
+		return this.repository.findById(id).orElseThrow(() -> {
+			throw new RestauranteNaoEncotradoExeption(id);
+		});
 	}
 
 	@Override
 	public void remove(Long id) {
 		try {
-			this.repository.deleteById(id);
-		} catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(
-					String.format("Entidade restaurante com %d não localizada ou não existe", id));
+			this.repository.delete(this.repository.findById(id).orElseThrow(() -> {
+				throw new RestauranteNaoEncotradoExeption(id);
+			}));
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeComDependencia(
 					String.format("Entidade com %d não pode ser removida, existem dependências vinculdas", id));

@@ -14,8 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import br.com.viafood.estado.domain.model.Estado;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,11 +34,10 @@ public class Cidade implements Serializable {
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@Column(name = "nome_cidade", nullable = false)
+	@Column(nullable = false)
 	private String nome;
 	
-	@JsonIgnore
 	@ManyToOne
-	@JoinColumn(name = "estado_id", nullable = false)
+	@JoinColumn(nullable = false)
 	private Estado estado;
 }
