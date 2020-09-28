@@ -3,6 +3,8 @@
  */
 package br.com.viafood.exceptions.exceptionhandler;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -24,6 +27,7 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import br.com.viafood.exceptions.exception.BusinessException;
 import br.com.viafood.exceptions.exception.EntidadeComDependencia;
 import br.com.viafood.exceptions.exception.EntidadeNaoEncontradaException;
+import br.com.viafood.utils.constantes.Constantes;
 
 /**
  * @author cbgomes
@@ -46,28 +50,50 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		}
 
 		ErrorApiType typeErrorApi = ErrorApiType.ERROR_REQUEST_CLIENT;
-		String details = "Verifique a sintaxe do corpo da requisição";
+		String details = Constantes.VERIFIQUE_SINTAXE_DA_REQUISICAO;
 
-		ApiErrorException apiErrorException = createApiErrorBuilder(status, typeErrorApi, details).build();
+		ApiErrorException apiErrorException = createApiErrorBuilder(status, typeErrorApi, details)
+				.userMessage("Erro no corpo da requisição, verifique sua estrutura e envie novamente")
+				.build();
 		return handleExceptionInternal(ex, apiErrorException, new HttpHeaders(), status, request);
 	}
 
 	@Override
 	protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
-
 		if (ex instanceof MethodArgumentTypeMismatchException) {
 			return handleMethodArgumentTypeMismatch((MethodArgumentTypeMismatchException) ex, headers, status, request);
 		}
-
 		return super.handleTypeMismatch(ex, headers, status, request);
 	}
+	
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+		
+		ErrorApiType typeErrorApi = ErrorApiType.ERROR_DADOS_INVALIDOS;
+		String details = " O campo  não foi informado na requisição";
+		List<ApiErrorException.Field> fields = ex.getBindingResult().getFieldErrors()
+				.stream().map(fieldError -> ApiErrorException.Field.
+						builder()
+						.nome(fieldError.getField())
+						.useMessage(fieldError.getDefaultMessage())
+						.build())
+						.collect(Collectors.toList());
+		
+		ApiErrorException apiErrorException = createApiErrorBuilder(status, typeErrorApi, details)
+				.fields(fields)
+				.userMessage("Dados obrigatórios não informados")
+				.build();
+		return handleExceptionInternal(ex, apiErrorException, new HttpHeaders(), status, request);
+	}
+	
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> exception(Exception ex, WebRequest request) {
 		HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 		ErrorApiType typeErrorApi = ErrorApiType.ERROR_SISTEMA;
-		String details = "Ocorreu um erro interno no sistema. Tente novamente mais tarde! Se o problema persistir, entre em contato com a administração ";
+		String details = Constantes.OCORREU_ERRO_INTERNO_NO_SISTEMA;
 
 		ApiErrorException apiErrorException = createApiErrorBuilder(status, typeErrorApi, details).build();
 		return handleExceptionInternal(ex, apiErrorException, new HttpHeaders(), status, request);
@@ -89,7 +115,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		ErrorApiType typeErrorApi = ErrorApiType.ERROR_TYPE_BUSINESS_EXCEPTION;
 		String details = ex.getMessage();
 
-		ApiErrorException apiErrorException = createApiErrorBuilder(status, typeErrorApi, details).build();
+		ApiErrorException apiErrorException = createApiErrorBuilder(status, typeErrorApi, details)
+				.timestamp(LocalDateTime.now())
+				.userMessage(Constantes.OCORREU_ERRO_INTERNO_NO_SISTEMA)
+				.build();
 		return handleExceptionInternal(ex, apiErrorException, new HttpHeaders(), status, request);
 	}
 
@@ -108,7 +137,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpStatus status, WebRequest request) {
 
 		ErrorApiType typeErrorApi = ErrorApiType.ERROR_TYPE_ENTIDADE_NAO_ENCONTRADA;
-		String detail = String.format("O recurso %s que você tentou acessar não existe", ex.getRequestURL());
+		String detail = String.format(Constantes.RECURSO_ACESSADO_NAO_ENCONTRADO_OU_NAO_EXITE, ex.getRequestURL());
 
 		ApiErrorException apiErrorException = createApiErrorBuilder(status, typeErrorApi, detail).build();
 		return handleExceptionInternal(ex, apiErrorException, new HttpHeaders(), status, request);
@@ -117,22 +146,33 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	@Override
 	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
-
 		if (body == null) {
-			body = ApiErrorException.builder().title(status.getReasonPhrase()).status(status.value()).build();
+			body = ApiErrorException.builder()
+					.title(status.getReasonPhrase())
+					.status(status.value())
+					.timestamp(LocalDateTime.now())
+					.userMessage(Constantes.OCORREU_ERRO_INTERNO_NO_SISTEMA)
+					.build();
 		} else if (body instanceof String) {
-
-			body = ApiErrorException.builder().title((String) body).status(status.value()).build();
+			body = ApiErrorException.builder()
+					.title((String) body)
+					.status(status.value())
+					.timestamp(LocalDateTime.now())
+					.userMessage(Constantes.OCORREU_ERRO_INTERNO_NO_SISTEMA)
+					.build();
 		}
-
 		return super.handleExceptionInternal(ex, body, headers, status, request);
 	}
 
 	private ApiErrorException.ApiErrorExceptionBuilder createApiErrorBuilder(HttpStatus status, ErrorApiType typeError,
 			String details) {
 
-		return ApiErrorException.builder().status(status.value()).title(typeError.getUri()).type(typeError.getTitle())
-				.details(details);
+		return ApiErrorException.builder()
+				.status(status.value())
+				.title(typeError.getUri())
+				.type(typeError.getTitle())
+				.details(details)
+				.timestamp(LocalDateTime.now());
 	}
 
 	private ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
@@ -167,7 +207,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		String details = String
 				.format("A propriedade '%s' não pertence a entidade, remova e envie a requisição novamente ", path);
 
-		ApiErrorException apiExceptionError = createApiErrorBuilder(status, typeErrorApi, details).build();
+		ApiErrorException apiExceptionError = createApiErrorBuilder(status, typeErrorApi, details)
+				.userMessage("A entidade não possui o atributos " + path + " passado na solicitação")
+				.build();
 
 		return handleExceptionInternal(ex, apiExceptionError, headers, status, request);
 	}

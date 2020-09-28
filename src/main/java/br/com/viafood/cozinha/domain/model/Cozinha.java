@@ -14,10 +14,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import br.com.viafood.restaurante.domain.model.Restaurante;
+import br.com.viafood.restaurante.groupvalidation.GroupsCozinha;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -32,11 +35,13 @@ import lombok.EqualsAndHashCode;
 public class Cozinha implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@NotNull(groups = GroupsCozinha.GroupCozinhaId.class)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
 	private Long id;
 	
+	@NotBlank
 	@Column(nullable = false)
 	private String nome;
 	

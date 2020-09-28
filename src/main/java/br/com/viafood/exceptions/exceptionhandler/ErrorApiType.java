@@ -12,6 +12,7 @@ import lombok.Getter;
 @Getter
 public enum ErrorApiType {
 	
+	ERROR_DADOS_INVALIDOS("/error-dados-invalidos","Dados inválidos"),
 	ERROR_SISTEMA("/error-sistema"," Erro interno do sistema"),
 	ERROR_URL_PARAM_EXCEPTION ("/parametro-invalido-na-requisicao", "Verifique o parametro enviado na url de acesso"),
 	ERROR_REQUEST_CLIENT ("/corpo-requisicao-invalido", "Erro no corpo da requisição, valide o JSON enviado"),

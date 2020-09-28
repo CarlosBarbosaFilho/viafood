@@ -5,6 +5,8 @@ package br.com.viafood.cidade.api;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,7 +48,7 @@ public class CidadeResourceRest {
 
 	@PostMapping("/cidades")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Cidade save(@RequestBody Cidade cidade) {
+	public final Cidade save(@RequestBody @Valid final Cidade cidade) {
 		try {
 			return this.service.save(cidade);			
 		} catch (EstadoNaoEcontradoException e) {
@@ -56,7 +58,7 @@ public class CidadeResourceRest {
 
 	@PutMapping("/cidades/{id}")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Cidade edit(@PathVariable final Long id, @RequestBody final Cidade cidade) {
+	public final Cidade edit(@PathVariable final Long id, @RequestBody @Valid final Cidade cidade) {
 		
 		try {
 			Cidade cidadeBase = this.service.getById(id);

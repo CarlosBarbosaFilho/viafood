@@ -5,6 +5,8 @@ package br.com.viafood.estado.api;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,13 +46,13 @@ public final class EstadoResourceRest {
 
 	@PostMapping("/estados")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Estado save(@RequestBody final Estado estado) {
+	public final Estado save(@RequestBody @Valid final Estado estado) {
 		return this.service.save(estado);
 	}
 
 	@PutMapping("/estados/{id}")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Estado edit(@PathVariable final Long id, @RequestBody Estado estado) {
+	public final Estado edit(@PathVariable final Long id, @RequestBody @Valid final Estado estado) {
 		Estado estadoBase = this.service.getById(id);
 		BeanUtils.copyProperties(estado, estadoBase, "id");
 		this.service.save(estadoBase);

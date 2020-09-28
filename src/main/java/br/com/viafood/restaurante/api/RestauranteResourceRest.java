@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -30,16 +29,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
 import br.com.viafood.exceptions.exception.BusinessException;
 import br.com.viafood.exceptions.exception.EntidadeComDependencia;
-import br.com.viafood.exceptions.exception.EntidadeNaoEncontradaException;
 import br.com.viafood.restaurante.business.RestauranteService;
 import br.com.viafood.restaurante.domain.model.Restaurante;
+import br.com.viafood.restaurante.exception.RestauranteNaoEncotradoExeption;
 
 /**
  * @author cbgomes
@@ -64,20 +62,24 @@ public class RestauranteResourceRest {
 
 	@PostMapping("/restaurantes")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Restaurante save(@RequestBody final Restaurante restaurante) {
-		return this.service.save(restaurante);
+	public final Restaurante save(@RequestBody final @Valid Restaurante restaurante) {
+		try {
+			return this.service.save(restaurante);			
+		} catch (CozinhaNaoEncontradaException e) {
+			throw new BusinessException(e.getMessage());
+		}
 	}
 
 	@PutMapping("/restaurantes/{id}")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Restaurante edit(@PathVariable final Long id, @RequestBody final Restaurante restaurante) {
+	public final Restaurante edit(@PathVariable final Long id, @RequestBody @Valid final Restaurante restaurante) {
 		Restaurante restauranteBase = this.service.getById(id);
 		BeanUtils.copyProperties(restaurante, restauranteBase, "id", "formasPagamentos", "endereco", "dataCadastro");
 
 		try {
 			Restaurante rt = this.service.save(restauranteBase);
 			return rt;
-		} catch (EntidadeNaoEncontradaException e) {
+		} catch (CozinhaNaoEncontradaException e) {
 			throw new BusinessException(e.getMessage());
 		}
 	}
@@ -165,7 +167,7 @@ public class RestauranteResourceRest {
 			this.service.remove(id);
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-		} catch (EntidadeNaoEncontradaException e) {
+		} catch (RestauranteNaoEncotradoExeption e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
 		} catch (EntidadeComDependencia e) {

@@ -5,6 +5,8 @@ package br.com.viafood.cozinha.api;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,7 +46,7 @@ public final class CozinhaResourceRest {
 
 	@PostMapping("/cozinhas")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Cozinha save(@RequestBody final Cozinha cozinha) {
+	public final Cozinha save(@RequestBody final @Valid Cozinha cozinha) {
 		return this.service.save(cozinha);
 	}
 
