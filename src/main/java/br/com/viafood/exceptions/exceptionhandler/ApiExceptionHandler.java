@@ -9,10 +9,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,6 +39,9 @@ import br.com.viafood.utils.constantes.Constantes;
  */
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+	
+	@Autowired
+	private MessageSource messageSource;
 
 	@Override
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
@@ -73,17 +80,29 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		
 		ErrorApiType typeErrorApi = ErrorApiType.ERROR_DADOS_INVALIDOS;
 		String details = " O campo  não foi informado na requisição";
-		List<ApiErrorException.Field> fields = ex.getBindingResult().getFieldErrors()
-				.stream().map(fieldError -> ApiErrorException.Field.
+		
+		
+		
+		List<ApiErrorException.Object> objects = ex.getBindingResult().getAllErrors().stream()
+				.map(objectError -> { 
+					String message = messageSource.getMessage(objectError, LocaleContextHolder.getLocale());
+					String name = objectError.getObjectName();
+					
+					if(objectError instanceof FieldError) {
+						name = ((FieldError) objectError).getField();
+					}
+					
+					return  ApiErrorException.Object.
 						builder()
-						.nome(fieldError.getField())
-						.useMessage(fieldError.getDefaultMessage())
-						.build())
-						.collect(Collectors.toList());
+						.nome(name)
+						.useMessage(message)
+						.build();
+				})
+				.collect(Collectors.toList());
 		
 		ApiErrorException apiErrorException = createApiErrorBuilder(status, typeErrorApi, details)
-				.fields(fields)
 				.userMessage("Dados obrigatórios não informados")
+				.objects(objects)
 				.build();
 		return handleExceptionInternal(ex, apiErrorException, new HttpHeaders(), status, request);
 	}

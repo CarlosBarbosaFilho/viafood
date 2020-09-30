@@ -33,6 +33,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import br.com.viafood.core.annotation.TaxaFrete;
+import br.com.viafood.core.annotation.ValidaFreteGratisDescricao;
 import br.com.viafood.cozinha.domain.model.Cozinha;
 import br.com.viafood.endereco.domain.Endereco;
 import br.com.viafood.pagamento.domain.model.FormaPagamento;
@@ -45,6 +47,7 @@ import lombok.EqualsAndHashCode;
  * @author cbgomes
  *
  */
+@ValidaFreteGratisDescricao(valorField="taxaFrete", descricaoField="nome", descricaoObrigatoriaFrete="Frete Grátis")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
@@ -62,7 +65,10 @@ public class Restaurante implements Serializable {
 	@Column(nullable = false)
 	private String nome;
 
+	@NotNull
+	@TaxaFrete
 	@PositiveOrZero
+//	@Multiplo(numero = 5)
 	@Column(nullable = false)
 	private BigDecimal taxaFrete;
 

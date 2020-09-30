@@ -3,25 +3,18 @@
  */
 package br.com.viafood.restaurante.api;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.server.ServletServerHttpRequest;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
 import br.com.viafood.exceptions.exception.BusinessException;
@@ -50,7 +41,7 @@ public class RestauranteResourceRest {
 	private final RestauranteService service;
 
 	@Autowired
-	public RestauranteResourceRest(RestauranteService service) {
+	public RestauranteResourceRest(RestauranteService service, SmartValidator validator) {
 		this.service = service;
 	}
 
@@ -64,7 +55,7 @@ public class RestauranteResourceRest {
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public final Restaurante save(@RequestBody final @Valid Restaurante restaurante) {
 		try {
-			return this.service.save(restaurante);			
+			return this.service.save(restaurante);
 		} catch (CozinhaNaoEncontradaException e) {
 			throw new BusinessException(e.getMessage());
 		}
@@ -81,41 +72,6 @@ public class RestauranteResourceRest {
 			return rt;
 		} catch (CozinhaNaoEncontradaException e) {
 			throw new BusinessException(e.getMessage());
-		}
-	}
-
-	@PatchMapping("/restaurantes/{id}")
-	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Restaurante editPart(@PathVariable final Long id, @RequestBody final Map<String, Object> fieldsRequest,
-			HttpServletRequest request) {
-		
-		Restaurante restaurante = this.service.getById(id);
-		mergePath(fieldsRequest, restaurante, request);
-		return edit(id, restaurante);
-
-	}
-
-	private void mergePath(final Map<String, Object> fieldsResquest, Restaurante restauranteUpdated,
-			HttpServletRequest request) {
-
-		ServletServerHttpRequest serverHttpRequest = new ServletServerHttpRequest(request);
-
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			Restaurante restauranteCreatedWithFieldsRequest = objectMapper.convertValue(fieldsResquest,
-					Restaurante.class);
-
-			fieldsResquest.forEach((nomePropriedade, valorPropriedade) -> {
-				Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
-				field.setAccessible(true);
-
-				Object newVelueField = ReflectionUtils.getField(field, restauranteCreatedWithFieldsRequest);
-
-				ReflectionUtils.setField(field, restauranteUpdated, newVelueField);
-			});
-		} catch (IllegalArgumentException e) {
-			Throwable rootCause = ExceptionUtils.getRootCause(e);
-			throw new HttpMessageNotReadableException(e.getMessage(), rootCause, serverHttpRequest);
 		}
 	}
 
