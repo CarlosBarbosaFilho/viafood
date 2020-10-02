@@ -53,6 +53,7 @@ public class EstadoServiceImpl implements EstadoService {
 			this.repository.delete(this.repository.findById(id).orElseThrow(() -> {
 				throw new EstadoNaoEcontradoException(id);
 			}));
+			this.repository.flush();
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeComDependencia(
 					String.format(Constantes.ENTIDADE_DEPENDENCIAS_VINCULADAS, id));

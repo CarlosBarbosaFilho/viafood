@@ -21,6 +21,8 @@ create table tb_cidades (
 create table tb_formas_pagamentos (
 	id bigint not null auto_increment,
 	descricao varchar (100) not null,
+	data_cadastro datetime not null,
+	data_atualizacao datetime not null,
 	
 	primary key (id)
 );
@@ -29,7 +31,7 @@ create table tb_formas_pagamentos (
 create table tb_cozinhas (
 	id bigint not null auto_increment,
 	nome varchar (100) not null,
-	
+
 	primary key (id)
 );
 
@@ -75,6 +77,8 @@ create table tb_produtos (
 	preco decimal (10,2) not null,
 	ativo tinyint(1) not null,
 	restaurante_id bigint not null,
+	data_cadastro datetime not null,
+	data_atualizacao datetime not null,
 	
 	foreign key (restaurante_id) references tb_restaurantes (id),
 	
@@ -88,6 +92,7 @@ create table tb_pedidos (
 	taxa_frete decimal not null,
 	valor_total decimal not null,
 	data_cadastro datetime not null,
+	data_atualizacao datetime not null,
 	data_confirmacao datetime not null,
 	data_cancelamentoo datetime,
 	data_entrega_pedido datetime,
@@ -119,6 +124,8 @@ create table tb_itens_pedidos (
 	observacao varchar (255),
 	pedido_id bigint not null,
 	produto_id bigint not null,
+	data_cadastro datetime not null,
+	data_atualizacao datetime not null,
 	
     foreign key (pedido_id) references tb_pedidos (id),
     foreign key (produto_id) references tb_produtos (id),

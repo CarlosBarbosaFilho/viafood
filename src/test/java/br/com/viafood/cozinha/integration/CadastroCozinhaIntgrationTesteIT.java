@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.com.viafood;
+package br.com.viafood.cozinha.integration;
 
 
 import static org.junit.Assert.assertNotNull;
@@ -27,7 +27,7 @@ import br.com.viafood.exceptions.exception.EntidadeNaoEncontradaException;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class CadastroCozinhaIntgrationTestIT {
+public class CadastroCozinhaIntgrationTesteIT {
 
 	@Autowired
 	private CozinhaService service;

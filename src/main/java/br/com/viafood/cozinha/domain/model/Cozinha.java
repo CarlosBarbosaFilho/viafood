@@ -4,6 +4,7 @@
 package br.com.viafood.cozinha.domain.model;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import br.com.viafood.restaurante.domain.model.Restaurante;
 import br.com.viafood.restaurante.groupvalidation.GroupsCozinha;
@@ -35,17 +37,15 @@ import lombok.EqualsAndHashCode;
 public class Cozinha implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@NotNull(groups = GroupsCozinha.GroupCozinhaId.class)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
 	private Long id;
 	
-	@NotBlank
 	@Column(nullable = false)
 	private String nome;
 	
-	@JsonIgnore
 	@OneToMany(mappedBy = "cozinha")
 	private List<Restaurante> restaurantes = new ArrayList<Restaurante>();
+	
 }

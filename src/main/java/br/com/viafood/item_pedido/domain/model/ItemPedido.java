@@ -4,6 +4,7 @@
 package br.com.viafood.item_pedido.domain.model;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +15,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import br.com.viafood.pedido.domain.model.Pedido;
 import br.com.viafood.produto.domain.model.Produto;
@@ -55,4 +59,11 @@ public class ItemPedido {
 	@JoinColumn(name = "pedido_id", nullable = false)
 	private Pedido pedido;
 
+	@Column(nullable = false, columnDefinition = "datetime")
+	@CreationTimestamp
+	private OffsetDateTime dataCadastro;
+	
+	@Column(nullable = false, columnDefinition = "datetime")
+	@UpdateTimestamp
+	private OffsetDateTime dataAtualizacao;
 }

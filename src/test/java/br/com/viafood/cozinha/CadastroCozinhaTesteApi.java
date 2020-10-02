@@ -1,17 +1,17 @@
 /**
  * 
  */
-package br.com.viafood;
+package br.com.viafood.cozinha;
 
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import org.flywaydb.core.Flyway;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,13 +23,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import br.com.viafood.cozinha.asserts.AssertsJsonFilesCozinha;
 import br.com.viafood.cozinha.business.CozinhaService;
 import br.com.viafood.cozinha.domain.model.Cozinha;
-import br.com.viafood.exceptions.exception.EntidadeNaoEncontradaException;
+import br.com.viafood.restaurante.asserts.AssertsJsonFilesRestaurante;
 import br.com.viafood.util.CleanDataBase;
+import br.com.viafood.util.ReadJsonFileResource;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 /**
@@ -41,8 +40,14 @@ import io.restassured.http.ContentType;
 @TestPropertySource("/application-test.properties")
 public class CadastroCozinhaTesteApi {
 	
+	private static final int ID_INVALIDO_PARA_CONSULTA_DE_COZINHA = 100;
+
 	@LocalServerPort
 	private int port;
+	
+	private Cozinha cozinhaJaponesa;
+	
+	private String jsonCozinhaJaponesa;
 	
 	@Autowired
 	private CleanDataBase cleanDataBase;
@@ -51,12 +56,12 @@ public class CadastroCozinhaTesteApi {
 	private CozinhaService service;
 	
 	@Before
-	public void setup() {
+	public void setupBefore() {
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 		RestAssured.port = this.port;
 		RestAssured.basePath = "/api/v1/cozinhas";
 		this.cleanDataBase.clearTables();
-		prepararMassaDados();		
+		prepararMassaDadosERetornaONumeroDeCozinhasCadastradas();		
 	}
 	
 	@Test
@@ -72,19 +77,19 @@ public class CadastroCozinhaTesteApi {
 	@Test
 	public void testeRetronaComSucessoCozinhaPassandoPathParamValido() {
 		given()
-			.pathParam("idCozinha", 1)
+			.pathParam("idCozinha", this.cozinhaJaponesa.getId())
 			.accept(ContentType.JSON)
 		.when()
 			.get("/{idCozinha}")
 		.then()
 			.statusCode(HttpStatus.OK.value())
-			.body("nome", equalTo("Brasileira"));
+			.body("nome", equalTo(this.cozinhaJaponesa.getNome()));
 	}
 	
 	@Test
 	public void testeRetronaComFalhaCozinhaPassandoPathParamInvalido() {
 		given()
-			.pathParam("idCozinha", 100)
+			.pathParam("idCozinha", ID_INVALIDO_PARA_CONSULTA_DE_COZINHA)
 			.accept(ContentType.JSON)
 		.when()
 			.get("/{idCozinha}")
@@ -95,7 +100,7 @@ public class CadastroCozinhaTesteApi {
 	@Test
 	public void testeRetornaStatus204RemoverCozinha() {
 		given()
-			.pathParam("idCozinha", 1)
+			.pathParam("idCozinha", this.cozinhaJaponesa.getId())
 			.accept(ContentType.JSON)
 		.when()
 			.delete("/{idCozinha}")
@@ -111,14 +116,13 @@ public class CadastroCozinhaTesteApi {
 			.get()
 		.then()
 			.statusCode(HttpStatus.OK.value())
-			.body("", hasSize(2))
 			.body("nome", hasItems("Japonesa"));
 	}
 	
 	@Test
 	public void testeRetornaStatus201CadastroCozinha() {
 		given()
-			.body("{\"nome\": \"Chinesa\"}")
+			.body(AssertsJsonFilesCozinha.retornaCozinhaJson())
 			.contentType(ContentType.JSON)
 			.accept(ContentType.JSON)
 		.when()
@@ -127,14 +131,16 @@ public class CadastroCozinhaTesteApi {
 			.statusCode(HttpStatus.CREATED.value());
 	}
 	
-	private void prepararMassaDados() {
+	private int prepararMassaDadosERetornaONumeroDeCozinhasCadastradas() {
 		Cozinha cozinhaBrasileira = new Cozinha();
 		cozinhaBrasileira.setNome("Brasileira");
 		
-		Cozinha cozinhaJaponesa = new Cozinha();
-		cozinhaJaponesa.setNome("Japonesa");
+		this.cozinhaJaponesa = new Cozinha();
+		this.cozinhaJaponesa.setNome("Japonesa");
 		
 		this.service.save(cozinhaBrasileira);
 		this.service.save(cozinhaJaponesa);
+		return this.service.list().size();
 	}
+	
 }

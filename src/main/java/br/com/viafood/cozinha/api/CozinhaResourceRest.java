@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.viafood.cozinha.business.CozinhaService;
 import br.com.viafood.cozinha.domain.model.Cozinha;
+import br.com.viafood.cozinha.domain.model.converter.CozinhaConverterDTO;
+import br.com.viafood.cozinha.domain.model.converter.CozinhaConverterForm;
+import br.com.viafood.cozinha.domain.model.dto.CozinhaDto;
+import br.com.viafood.cozinha.domain.model.form.CozinhaForm;
+import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
+import br.com.viafood.exceptions.exception.BusinessException;
 
 /**
  * @author cbgomes
@@ -32,43 +37,55 @@ import br.com.viafood.cozinha.domain.model.Cozinha;
 public final class CozinhaResourceRest {
 
 	private final CozinhaService service;
+	
+	private CozinhaConverterDTO cozinhaConverterDto;
+	
+	private CozinhaConverterForm cozinhaConverterForm;
 
 	@Autowired
-	public CozinhaResourceRest(final CozinhaService service) {
+	public CozinhaResourceRest(final CozinhaService service, final CozinhaConverterDTO cozinhaConverterDto,
+			final CozinhaConverterForm cozinhaConverterForm) {
 		this.service = service;
+		this.cozinhaConverterDto = cozinhaConverterDto;
+		this.cozinhaConverterForm = cozinhaConverterForm;
 	}
 
 	@GetMapping("/cozinhas")
 	@ResponseStatus(value = HttpStatus.OK)
-	public final List<Cozinha> list() {
-		return this.service.list();
+	public final List<CozinhaDto> list() {
+		return this.cozinhaConverterDto.restaurantesDtos(this.service.list());
 	}
 
 	@PostMapping("/cozinhas")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Cozinha save(@RequestBody final @Valid Cozinha cozinha) {
-		return this.service.save(cozinha);
+	public final CozinhaDto save(@RequestBody final @Valid Cozinha cozinha) {
+		return this.cozinhaConverterDto.ToDto(this.service.save(cozinha));
 	}
 
 	@PutMapping("/cozinhas/{id}")
-	@ResponseStatus(value = HttpStatus.OK)
-	public final Cozinha edit(@PathVariable final Long id, @RequestBody final Cozinha cozinha) {
-		Cozinha cozinhaBase = this.service.getById(id);
-
-		BeanUtils.copyProperties(cozinha, cozinhaBase, "id");
-		return this.service.save(cozinhaBase);
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public final CozinhaDto edit(@PathVariable final Long id, @RequestBody final CozinhaForm cozinhaForm) {
+		
+		try {			
+			Cozinha cozinhaBase = this.service.getById(id);
+			this.cozinhaConverterForm.copyCozinhaFormToCozinha(cozinhaForm, cozinhaBase);
+			return this.cozinhaConverterDto.ToDto(this.service.save(cozinhaBase));
+			
+		} catch (CozinhaNaoEncontradaException e) {
+			throw new BusinessException(e.getMessage());
+		}
 	}
 
 	@GetMapping("/cozinhas/{id}")
 	@ResponseStatus(value = HttpStatus.OK)
-	public final Cozinha getById(@PathVariable final Long id) {
-		return this.service.getById(id);
+	public final CozinhaDto getById(@PathVariable final Long id) {
+		return this.cozinhaConverterDto.ToDto(this.service.getById(id));
 	}
 
 	@GetMapping("/cozinhas/nome")
 	@ResponseStatus(value = HttpStatus.OK)
-	public final Cozinha getByNome(String nome) {
-		return this.service.getByNome(nome);
+	public final CozinhaDto getByNome(String nome) {
+		return this.cozinhaConverterDto.ToDto(this.service.getByNome(nome));
 	}
 
 	@GetMapping("/cozinhas/exists")
@@ -80,6 +97,6 @@ public final class CozinhaResourceRest {
 	@DeleteMapping("/cozinhas/{id}")
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)
 	public final void remove(@PathVariable final Long id) {
-		this.service.remove(id);
+		this.service.remove(id);			
 	}
 }

@@ -5,7 +5,7 @@ package br.com.viafood.restaurante.domain.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,25 +21,16 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
-import javax.validation.groups.ConvertGroup;
-import javax.validation.groups.Default;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import br.com.viafood.core.annotation.TaxaFrete;
-import br.com.viafood.core.annotation.ValidaFreteGratisDescricao;
 import br.com.viafood.cozinha.domain.model.Cozinha;
 import br.com.viafood.endereco.domain.Endereco;
 import br.com.viafood.pagamento.domain.model.FormaPagamento;
 import br.com.viafood.produto.domain.model.Produto;
-import br.com.viafood.restaurante.groupvalidation.GroupsCozinha;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -47,7 +38,6 @@ import lombok.EqualsAndHashCode;
  * @author cbgomes
  *
  */
-@ValidaFreteGratisDescricao(valorField="taxaFrete", descricaoField="nome", descricaoObrigatoriaFrete="Frete Grátis")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
@@ -60,30 +50,24 @@ public class Restaurante implements Serializable {
 	@EqualsAndHashCode.Include
 	private Long id;
 	
-	
-	@NotBlank
 	@Column(nullable = false)
 	private String nome;
 
-	@NotNull
 	@TaxaFrete
 	@PositiveOrZero
-//	@Multiplo(numero = 5)
 	@Column(nullable = false)
 	private BigDecimal taxaFrete;
 
-	@Valid
-	@ConvertGroup(from = Default.class, to=GroupsCozinha.GroupCozinhaId.class)
-	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "cozinha_id", nullable = false)
 	private Cozinha cozinha;
 	
-	@JsonIgnore
+	@Column(nullable = false)
+	private boolean ativo;
+	
 	@Embedded
 	private Endereco endereco;
 
-	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "tb_restaurantes_formas_pagamentos",
 	joinColumns = @JoinColumn(name = "restaurante_id",
@@ -92,18 +76,14 @@ public class Restaurante implements Serializable {
 	referencedColumnName = "id"))
 	private List<FormaPagamento> formasPagamentos = new ArrayList<FormaPagamento>();
 	
-	@JsonIgnore
 	@OneToMany(mappedBy = "restaurante")
 	private List<Produto> produtos = new ArrayList<Produto>();
 	
-	@JsonIgnore
-	@Column(nullable = false, columnDefinition = "datetime")
 	@CreationTimestamp
-	private LocalDateTime dataCadastro;
-	
-
-	@JsonIgnore
 	@Column(nullable = false, columnDefinition = "datetime")
+	private OffsetDateTime dataCadastro;
+	
 	@UpdateTimestamp
-	private LocalDateTime dataAtualizacao;
+	@Column(nullable = false, columnDefinition = "datetime")
+	private OffsetDateTime dataAtualizacao;
 }

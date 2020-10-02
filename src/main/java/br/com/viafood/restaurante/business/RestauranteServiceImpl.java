@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.viafood.cozinha.domain.repository.CozinhaRepository;
 import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
@@ -45,6 +46,7 @@ public class RestauranteServiceImpl implements RestauranteService {
 		return this.repository.findAll(RestauranteSpec.freteGratis().and(RestauranteSpec.nomeSemelhante(nome)));
 	}
 
+	@Transactional
 	@Override
 	public Restaurante save(Restaurante restaurante) {
 		restaurante.setCozinha(this.cozinhaRepository.findById(restaurante.getCozinha().getId())
@@ -59,13 +61,23 @@ public class RestauranteServiceImpl implements RestauranteService {
 			throw new RestauranteNaoEncotradoExeption(id);
 		});
 	}
+	
+	@Transactional
+	@Override
+	public void desativarRestaurante(Long id) {
+		this.repository.findById(id).orElseThrow(() ->{
+			throw new RestauranteNaoEncotradoExeption(id);
+		}).setAtivo(false);
+	}
 
+	@Transactional
 	@Override
 	public void remove(Long id) {
 		try {
 			this.repository.delete(this.repository.findById(id).orElseThrow(() -> {
 				throw new RestauranteNaoEncotradoExeption(id);
 			}));
+			this.repository.flush();
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeComDependencia(
 					String.format("Entidade com %d não pode ser removida, existem dependências vinculdas", id));

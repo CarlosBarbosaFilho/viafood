@@ -5,6 +5,7 @@ package br.com.viafood.pedido.domain.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -17,6 +18,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import br.com.viafood.endereco.domain.Endereco;
 import br.com.viafood.item_pedido.domain.model.ItemPedido;
@@ -78,4 +82,12 @@ public class Pedido {
 
 	@Embedded
 	private Endereco endereco;
+	
+	@Column(nullable = false, columnDefinition = "datetime")
+	@CreationTimestamp
+	private OffsetDateTime dataCadastro;
+	
+	@Column(nullable = false, columnDefinition = "datetime")
+	@UpdateTimestamp
+	private OffsetDateTime dataAtualizacao;
 }

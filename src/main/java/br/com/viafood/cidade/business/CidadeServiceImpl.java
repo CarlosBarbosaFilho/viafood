@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.viafood.cidade.domain.model.Cidade;
 import br.com.viafood.cidade.domain.repository.CidadeRespository;
@@ -40,6 +41,7 @@ public class CidadeServiceImpl implements CidadeService {
 	}
 
 	@Override
+	@Transactional
 	public Cidade save(Cidade cidade) {
 		cidade.setEstado(this.estadoRepository.findById(cidade.getEstado().getId()).orElseThrow(() -> {
 			throw new EstadoNaoEcontradoException(cidade.getEstado().getId());
@@ -54,6 +56,7 @@ public class CidadeServiceImpl implements CidadeService {
 		return cidade;
 	}
 
+	@Transactional
 	@Override
 	public void remove(Long id) {
 		try {

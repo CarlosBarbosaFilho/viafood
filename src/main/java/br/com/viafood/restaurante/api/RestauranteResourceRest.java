@@ -11,8 +11,6 @@ import javax.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,10 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
 import br.com.viafood.exceptions.exception.BusinessException;
-import br.com.viafood.exceptions.exception.EntidadeComDependencia;
 import br.com.viafood.restaurante.business.RestauranteService;
 import br.com.viafood.restaurante.domain.model.Restaurante;
-import br.com.viafood.restaurante.exception.RestauranteNaoEncotradoExeption;
+import br.com.viafood.restaurante.domain.model.converter.RestauranteConverterDTO;
+import br.com.viafood.restaurante.domain.model.converter.RestauranteConverterForm;
+import br.com.viafood.restaurante.domain.model.dto.RestauranteDto;
+import br.com.viafood.restaurante.domain.model.form.RestauranteForm;
 
 /**
  * @author cbgomes
@@ -39,37 +39,46 @@ import br.com.viafood.restaurante.exception.RestauranteNaoEncotradoExeption;
 public class RestauranteResourceRest {
 
 	private final RestauranteService service;
+	
+	private final RestauranteConverterDTO restauranteConverterDto;
+	
+	private final RestauranteConverterForm restauranteConverterForm;
 
 	@Autowired
-	public RestauranteResourceRest(RestauranteService service, SmartValidator validator) {
+	public RestauranteResourceRest(RestauranteService service, RestauranteConverterDTO restauranteConverterDto
+			,RestauranteConverterForm restauranteConverterForm) {
 		this.service = service;
+		this.restauranteConverterDto = restauranteConverterDto;
+		this.restauranteConverterForm = restauranteConverterForm;
 	}
 
 	@GetMapping("/restaurantes")
 	@ResponseStatus(value = HttpStatus.OK)
-	public final List<Restaurante> list() {
-		return this.service.list();
+	public final List<RestauranteDto> list() {
+		return this.restauranteConverterDto.restaurantesDtos(this.service.list());
 	}
 
 	@PostMapping("/restaurantes")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Restaurante save(@RequestBody final @Valid Restaurante restaurante) {
+	public final RestauranteDto save(@RequestBody final @Valid RestauranteForm restauranteForm) {
 		try {
-			return this.service.save(restaurante);
+			RestauranteDto dto = this.restauranteConverterDto
+					.ToDto(this.service.save(restauranteConverterForm.ToRestauranteForm(restauranteForm)));
+			return dto;
 		} catch (CozinhaNaoEncontradaException e) {
 			throw new BusinessException(e.getMessage());
 		}
 	}
-
+	
 	@PutMapping("/restaurantes/{id}")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final Restaurante edit(@PathVariable final Long id, @RequestBody @Valid final Restaurante restaurante) {
-		Restaurante restauranteBase = this.service.getById(id);
-		BeanUtils.copyProperties(restaurante, restauranteBase, "id", "formasPagamentos", "endereco", "dataCadastro");
+	public final RestauranteDto edit(@PathVariable final Long id, @RequestBody final @Valid RestauranteForm restauranteForm) {
 
 		try {
-			Restaurante rt = this.service.save(restauranteBase);
-			return rt;
+			Restaurante restauranteAtual = this.service.getById(id);
+			this.restauranteConverterForm.copyRestauranteFormToRestaurante(restauranteForm, restauranteAtual);
+			return this.restauranteConverterDto.ToDto(this.service.save(restauranteAtual));
+			
 		} catch (CozinhaNaoEncontradaException e) {
 			throw new BusinessException(e.getMessage());
 		}
@@ -77,57 +86,61 @@ public class RestauranteResourceRest {
 
 	@GetMapping("/restaurantes/{id}")
 	@ResponseStatus(value = HttpStatus.OK)
-	public final Restaurante getById(@PathVariable final Long id) {
-		return this.service.getById(id);
+	public final RestauranteDto getById(@PathVariable final Long id) {
+		return this.restauranteConverterDto.ToDto(this.service.getById(id));
+	}
+	
+	@DeleteMapping("/restaurantes/{id}")
+	@ResponseStatus(value = HttpStatus.NO_CONTENT)
+	public final void remove(@PathVariable final Long id) {
+		this.service.remove(id);
+	}
+	
+	@GetMapping("/restauramtes/desativar/{id}")
+	@ResponseStatus(value = HttpStatus.OK)
+	public void desativarRestaurante(@PathVariable final Long id) {
+		this.service.desativarRestaurante(id);
 	}
 
 	@GetMapping("/restaurantes/first")
-	public final ResponseEntity<Restaurante> getFirstRestaurante() {
-		return ResponseEntity.ok(this.service.buscaPrimeiroCadastro());
+	@ResponseStatus(value = HttpStatus.OK)
+	public final RestauranteDto getFirstRestaurante() {
+		return this.restauranteConverterDto.ToDto(this.service.buscaPrimeiroCadastro());
 	}
 
 	@GetMapping("/restaurantes/taxa-frete")
 	@ResponseStatus(value = HttpStatus.OK)
-	public final List<Restaurante> listRestauranteByBetWeenTaxas(BigDecimal taxa_inicial, BigDecimal taxa_final) {
-		List<Restaurante> restaurantes = this.service.listaRestaurantesPorFaixaDeTaxaFrete(taxa_inicial, taxa_final);
-		return restaurantes;
+	public final List<RestauranteDto> listRestauranteByBetWeenTaxas(final BigDecimal taxa_inicial, final BigDecimal taxa_final) {
+		return this.restauranteConverterDto.restaurantesDtos(this.service.listaRestaurantesPorFaixaDeTaxaFrete(taxa_inicial, taxa_final));
 	}
 
 	@GetMapping("/restaurantes/nome-taxa-frete")
-	public final ResponseEntity<List<Restaurante>> listRestaurantePorNomeETaxaFrte(String nome, BigDecimal taxa_inicial,
+	@ResponseStatus(value = HttpStatus.OK)
+	public final List<RestauranteDto> listRestaurantePorNomeETaxaFrte(final String nome, final BigDecimal taxa_inicial,
 			BigDecimal taxa_final) {
-		List<Restaurante> restaurantes = this.service.recuperaRestaurantePorNomeEFaixaDeFrete(nome, taxa_inicial,
-				taxa_final);
-		return ResponseEntity.ok(restaurantes);
+		List<Restaurante> restaurantes = this.service.recuperaRestaurantePorNomeEFaixaDeFrete(nome, taxa_inicial,taxa_final);
+		List<RestauranteDto> restaurantesDtos = this.restauranteConverterDto.restaurantesDtos(restaurantes);
+		return restaurantesDtos;
 	}
 
 	@GetMapping("/restaurantes/nome-cozinha")
-	public final ResponseEntity<List<Restaurante>> listaRestaurantePorNomeEIdCozinha(String nome, Long idCozinha) {
-		List<Restaurante> restaurantes = this.service.listaRestaurantePorNomeECozinha(nome, idCozinha);
-		return ResponseEntity.ok(restaurantes);
+	@ResponseStatus(value = HttpStatus.OK)
+	public final List<RestauranteDto> listaRestaurantePorNomeEIdCozinha(final String nome, final Long idCozinha) {
+		return this.restauranteConverterDto.restaurantesDtos(this.service.listaRestaurantePorNomeECozinha(nome, idCozinha));
 	}
 
 	@GetMapping("/restaurantes/count")
+	@ResponseStatus(value = HttpStatus.OK)
 	public final int countRestaurantesCozinhas(Long idCozinha) {
 		return this.service.countCozinhas(idCozinha);
 	}
 
 	@GetMapping("/restaurantes/frete-free")
-	public final List<Restaurante> restaurantesDeliveryFree(String nome) {
-		return this.service.listRestauranteFreteGratis(nome);
+	@ResponseStatus(value = HttpStatus.OK)
+	public final List<RestauranteDto> restaurantesDeliveryFree(final String nome) {
+		return this.restauranteConverterDto.restaurantesDtos(this.service.listRestauranteFreteGratis(nome));
 	}
 
-	@DeleteMapping("/restaurantes/{id}")
-	public final ResponseEntity<Restaurante> remove(@PathVariable final Long id) {
-		try {
-			this.service.remove(id);
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-		} catch (RestauranteNaoEncotradoExeption e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-		} catch (EntidadeComDependencia e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
-		}
-	}
 }

@@ -7,13 +7,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.viafood.cozinha.domain.model.Cozinha;
 import br.com.viafood.cozinha.domain.repository.CozinhaRepository;
 import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
 import br.com.viafood.exceptions.exception.EntidadeComDependencia;
+import br.com.viafood.restaurante.exception.RestauranteNaoEncotradoExeption;
 import br.com.viafood.utils.constantes.Constantes;
 
 /**
@@ -30,6 +31,7 @@ public class CozinhaServiceImpl implements CozinhaService {
 		this.repository = repository;
 	}
 
+	@Transactional
 	@Override
 	public Cozinha save(final Cozinha cozinha) {
 		return this.repository.save(cozinha);
@@ -55,19 +57,18 @@ public class CozinhaServiceImpl implements CozinhaService {
 				.orElseThrow(() -> new CozinhaNaoEncontradaException(id));
 	}
 
+	@Transactional
 	@Override
 	public void remove(final Long id) {
 		try {
-			this.repository.deleteById(id);
-			
+			 this.repository.delete(this.repository.findById(id).orElseThrow(() -> {
+				throw new RestauranteNaoEncotradoExeption(id);
+			}));
+			 
+			this.repository.flush();
 		} catch (DataIntegrityViolationException e) {
-			throw new EntidadeComDependencia(
-					String.format(Constantes.ENTIDADE_DEPENDENCIAS_VINCULADAS, id));
-		
-		}catch (EmptyResultDataAccessException e) {
-			throw new CozinhaNaoEncontradaException(id);
-			
-		} 
+			throw new EntidadeComDependencia(String.format(Constantes.ENTIDADE_DEPENDENCIAS_VINCULADAS, id));
+		}
 	}
 
 	@Override

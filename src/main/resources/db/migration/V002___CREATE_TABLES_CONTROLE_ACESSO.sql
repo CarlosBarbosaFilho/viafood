@@ -3,7 +3,8 @@ create table tb_permissoes (
 	id bigint not null auto_increment,
 	nome varchar (50) not null,
 	descricao varchar (255) not null,
-	
+	data_cadastro datetime not null,
+	data_atualizacao datetime not null,
 	primary key (id)
 );
 
@@ -12,7 +13,8 @@ create table tb_permissoes (
 create table tb_grupos (
 	id bigint not null auto_increment,
 	nome varchar (50) not null,
-	
+	data_cadastro datetime not null,
+	data_atualizacao datetime not null,
 	primary key (id)
 );
 
@@ -31,6 +33,7 @@ create table tb_usuarios (
 	email varchar (200) not null,
 	senha varchar (20) not null,
 	data_cadastro datetime not null,
+	data_atualizacao datetime not null,
 	
 	primary key (id)
 );
