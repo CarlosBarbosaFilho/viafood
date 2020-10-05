@@ -36,10 +36,10 @@ public class Permissao implements Serializable{
 	@EqualsAndHashCode.Include
 	private Long id;
 	
-	@Column(name = "nome_permissao")
+	@Column(name = "nome")
 	private String nome;
 	
-	@Column(name = "descricao_permissao")
+	@Column(name = "descricao")
 	private String descricao;
 	
 	@Column(nullable = false, columnDefinition = "datetime")

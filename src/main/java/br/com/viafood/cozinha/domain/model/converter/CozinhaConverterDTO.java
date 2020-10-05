@@ -23,7 +23,7 @@ public class CozinhaConverterDTO {
 	@Autowired
 	private ModelMapper modelMapper;
 	
-	public List<CozinhaDto> restaurantesDtos(List<Cozinha> cozinhas){
+	public List<CozinhaDto> cozinhasDtos(List<Cozinha> cozinhas){
 		return cozinhas.stream()
 				.map(cozinha -> ToDto(cozinha))
 				.collect(Collectors.toList());

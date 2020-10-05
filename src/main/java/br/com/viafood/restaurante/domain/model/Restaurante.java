@@ -86,4 +86,12 @@ public class Restaurante implements Serializable {
 	@UpdateTimestamp
 	@Column(nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime dataAtualizacao;
+	
+	public void ativar() {
+		setAtivo(true);
+	}
+	
+	public void desativar() {
+		setAtivo(false);
+	}
 }

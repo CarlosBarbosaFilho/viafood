@@ -4,7 +4,6 @@
 package br.com.viafood.cozinha.domain.model;
 
 import java.io.Serializable;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,14 +14,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import br.com.viafood.restaurante.domain.model.Restaurante;
-import br.com.viafood.restaurante.groupvalidation.GroupsCozinha;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

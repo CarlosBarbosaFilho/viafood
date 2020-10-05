@@ -3,6 +3,8 @@
  */
 package br.com.viafood.estado.domain.model.form;
 
+import javax.validation.constraints.NotBlank;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,5 +16,6 @@ import lombok.Setter;
 @Setter
 public class EstadoForm {
 
-	private Long id;
+	@NotBlank
+	private String nome;
 }

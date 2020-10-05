@@ -62,6 +62,7 @@ public class CidadeServiceImpl implements CidadeService {
 		try {
 			this.repository.delete(this.repository
 					.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException(id)));
+			this.repository.flush();
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeComDependencia(String.format(Constantes.ENTIDADE_DEPENDENCIAS_VINCULADAS, id));
 		}

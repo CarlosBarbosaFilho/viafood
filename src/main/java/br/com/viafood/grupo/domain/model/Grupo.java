@@ -6,6 +6,7 @@ package br.com.viafood.grupo.domain.model;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -38,23 +39,23 @@ public class Grupo {
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@Column(name = "nome_grupo")
-	private String nome;
+	@Column(name = "descricao_grupo")
+	private String descricao;
 
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.REMOVE)
 	@JoinTable(name = "tb_grupos_permissoes", 
-	joinColumns = @JoinColumn(name = "grupo_id",
+	joinColumns = @JoinColumn(name = "id_grupo",
 	referencedColumnName = "id"),
-	inverseJoinColumns = @JoinColumn(name = "permissao_id",
+	inverseJoinColumns = @JoinColumn(name = "id_permissao",
 	referencedColumnName = "id"))
 	private List<Permissao> permissoes;
-	
-	@Column(nullable = false, columnDefinition = "datetime")
+
 	@CreationTimestamp
+	@Column(nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime dataCadastro;
 	
-	@Column(nullable = false, columnDefinition = "datetime")
 	@UpdateTimestamp
-	private OffsetDateTime dataAtualizacao;
+	@Column(nullable = false, columnDefinition = "datetime")
+	private OffsetDateTime dataAtualizacao;;
 
 }

@@ -12,7 +12,7 @@ create table tb_permissoes (
 ####### CRIANDO A TABELA DOS GRUPOS ######################
 create table tb_grupos (
 	id bigint not null auto_increment,
-	nome varchar (50) not null,
+	descricao_grupo varchar (50) not null,
 	data_cadastro datetime not null,
 	data_atualizacao datetime not null,
 	primary key (id)

@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.viafood.cidade.exception.CidadeNaoEncontradaException;
 import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
 import br.com.viafood.exceptions.exception.BusinessException;
 import br.com.viafood.restaurante.business.RestauranteService;
@@ -60,11 +60,13 @@ public class RestauranteResourceRest {
 
 	@PostMapping("/restaurantes")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public final RestauranteDto save(@RequestBody final @Valid RestauranteForm restauranteForm) {
+	public final RestauranteDto save(@RequestBody @Valid RestauranteForm restauranteForm) {
 		try {
-			RestauranteDto dto = this.restauranteConverterDto
-					.ToDto(this.service.save(restauranteConverterForm.ToRestauranteForm(restauranteForm)));
-			return dto;
+			
+			Restaurante restaurante = this.restauranteConverterForm.ToRestauranteForm(restauranteForm);
+			restaurante = this.service.save(restaurante);
+			return this.restauranteConverterDto.ToDto(restaurante);
+			
 		} catch (CozinhaNaoEncontradaException e) {
 			throw new BusinessException(e.getMessage());
 		}
@@ -73,13 +75,12 @@ public class RestauranteResourceRest {
 	@PutMapping("/restaurantes/{id}")
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public final RestauranteDto edit(@PathVariable final Long id, @RequestBody final @Valid RestauranteForm restauranteForm) {
-
 		try {
 			Restaurante restauranteAtual = this.service.getById(id);
 			this.restauranteConverterForm.copyRestauranteFormToRestaurante(restauranteForm, restauranteAtual);
 			return this.restauranteConverterDto.ToDto(this.service.save(restauranteAtual));
 			
-		} catch (CozinhaNaoEncontradaException e) {
+		} catch (CozinhaNaoEncontradaException | CidadeNaoEncontradaException e) {
 			throw new BusinessException(e.getMessage());
 		}
 	}
@@ -96,10 +97,16 @@ public class RestauranteResourceRest {
 		this.service.remove(id);
 	}
 	
-	@GetMapping("/restauramtes/desativar/{id}")
-	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping("/restaurantes/desativar/{id}")
+	@ResponseStatus(value = HttpStatus.NO_CONTENT)
 	public void desativarRestaurante(@PathVariable final Long id) {
 		this.service.desativarRestaurante(id);
+	}
+	
+	@GetMapping("/restaurantes/ativar/{id}")
+	@ResponseStatus(value = HttpStatus.NO_CONTENT)
+	public void ativarRestaurante(@PathVariable final Long id) {
+		this.service.ativarRestaurante(id);
 	}
 
 	@GetMapping("/restaurantes/first")

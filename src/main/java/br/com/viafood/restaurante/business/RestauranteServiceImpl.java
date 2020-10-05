@@ -12,6 +12,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.viafood.cidade.domain.repository.CidadeRespository;
+import br.com.viafood.cidade.exception.CidadeNaoEncontradaException;
 import br.com.viafood.cozinha.domain.repository.CozinhaRepository;
 import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
 import br.com.viafood.exceptions.exception.EntidadeComDependencia;
@@ -29,11 +31,14 @@ public class RestauranteServiceImpl implements RestauranteService {
 
 	private RestauranteRepository repository;
 	private CozinhaRepository cozinhaRepository;
+	private CidadeRespository cidadeRepository;
 
 	@Autowired
-	public RestauranteServiceImpl(RestauranteRepository repository, CozinhaRepository cozinhaRepository) {
+	public RestauranteServiceImpl(RestauranteRepository repository, CozinhaRepository cozinhaRepository,
+			CidadeRespository cidadeRepository) {
 		this.repository = repository;
 		this.cozinhaRepository = cozinhaRepository;
+		this.cidadeRepository = cidadeRepository;
 	}
 
 	@Override
@@ -51,7 +56,10 @@ public class RestauranteServiceImpl implements RestauranteService {
 	public Restaurante save(Restaurante restaurante) {
 		restaurante.setCozinha(this.cozinhaRepository.findById(restaurante.getCozinha().getId())
 				.orElseThrow(() -> new CozinhaNaoEncontradaException(restaurante.getCozinha().getId())));
-
+		
+		restaurante.getEndereco().setCidade(this.cidadeRepository.findById(restaurante.getEndereco().getCidade().getId())
+				.orElseThrow(() -> new CidadeNaoEncontradaException(restaurante.getEndereco().getCidade().getId())));
+		
 		return this.repository.save(restaurante);
 	}
 
@@ -67,7 +75,15 @@ public class RestauranteServiceImpl implements RestauranteService {
 	public void desativarRestaurante(Long id) {
 		this.repository.findById(id).orElseThrow(() ->{
 			throw new RestauranteNaoEncotradoExeption(id);
-		}).setAtivo(false);
+		}).desativar();
+	}
+	
+	@Transactional
+	@Override
+	public void ativarRestaurante(Long id) {
+		this.repository.findById(id).orElseThrow(() ->{
+			throw new RestauranteNaoEncotradoExeption(id);
+		}).ativar();
 	}
 
 	@Transactional

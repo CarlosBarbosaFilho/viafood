@@ -53,7 +53,7 @@ public final class CozinhaResourceRest {
 	@GetMapping("/cozinhas")
 	@ResponseStatus(value = HttpStatus.OK)
 	public final List<CozinhaDto> list() {
-		return this.cozinhaConverterDto.restaurantesDtos(this.service.list());
+		return this.cozinhaConverterDto.cozinhasDtos(this.service.list());
 	}
 
 	@PostMapping("/cozinhas")

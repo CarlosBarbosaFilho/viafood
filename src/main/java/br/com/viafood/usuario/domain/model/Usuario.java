@@ -6,6 +6,7 @@ package br.com.viafood.usuario.domain.model;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -38,20 +39,17 @@ public class Usuario {
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@Column(name = "nome_usuario", nullable = false)
 	private String nome;
 
-	@Column(name = "email_usuario", nullable = false)
 	private String email;
 
-	@Column(name = "senha_usuario", nullable = false)
 	private String senha;
 
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.REMOVE)
 	@JoinTable(name = "tb_usuarios_grupos",
-	joinColumns = @JoinColumn(name = "usuario_id",
+	joinColumns = @JoinColumn(name = "id_usuario",
 	referencedColumnName = "id"),
-	inverseJoinColumns = @JoinColumn(name = "grupo_id",
+	inverseJoinColumns = @JoinColumn(name = "id_grupo",
 	referencedColumnName = "id"))
 	private List<Grupo> grupos;
 	

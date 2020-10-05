@@ -66,10 +66,10 @@ INSERT INTO viafood.tb_cozinhas (id,nome) values (3,'Tailandesa');
 INSERT INTO viafood.tb_cozinhas (id,nome) values (4,'Italiana');
 
 ############################## CADSTRO DOS RESTAURANTES ##############################################################
-INSERT INTO viafood.tb_restaurantes (id,nome, taxa_frete,cozinha_id,data_cadastro,data_atualizacao,endereco_cidade_id,endereco_cep,endereco_logradouro,endereco_numero,endereco_bairro) values (1, 'Brasileirinho', 10, 1, utc_timestamp, utc_timestamp, 1, '38400-999', 'Rua João Pinheiro', '1000', 'Centro');
-INSERT INTO viafood.tb_restaurantes (id,nome, taxa_frete,cozinha_id,data_cadastro,data_atualizacao,endereco_cidade_id,endereco_cep,endereco_logradouro,endereco_numero,endereco_bairro) values (2,'Saipan', 23.30,2,utc_timestamp, utc_timestamp,1, '38400-999', 'Rua João Pinheiro', '1000', 'Centro');
-INSERT INTO viafood.tb_restaurantes (id,nome, taxa_frete,cozinha_id,data_cadastro,data_atualizacao,endereco_cidade_id,endereco_cep,endereco_logradouro,endereco_numero,endereco_bairro) values (3,'KingBox', 10.90, 3,utc_timestamp, utc_timestamp,1, '38400-999', 'Rua João Pinheiro', '1000', 'Centro');
-INSERT INTO viafood.tb_restaurantes (id,nome, taxa_frete,cozinha_id,data_cadastro,data_atualizacao,endereco_cidade_id,endereco_cep,endereco_logradouro,endereco_numero,endereco_bairro) values (4,'Mamamia', 12.10, 4,utc_timestamp, utc_timestamp,1, '38400-999', 'Rua João Pinheiro', '1000', 'Centro');
+INSERT INTO viafood.tb_restaurantes (id,nome, taxa_frete,cozinha_id,data_cadastro,data_atualizacao,endereco_cidade_id,endereco_cep,endereco_logradouro,endereco_numero,endereco_bairro, ativo) values (1, 'Brasileirinho', 10, 1, utc_timestamp, utc_timestamp, 1, '38400-999', 'Rua João Pinheiro', '1000', 'Centro',1);
+INSERT INTO viafood.tb_restaurantes (id,nome, taxa_frete,cozinha_id,data_cadastro,data_atualizacao,endereco_cidade_id,endereco_cep,endereco_logradouro,endereco_numero,endereco_bairro, ativo) values (2,'Saipan', 23.30,2,utc_timestamp, utc_timestamp,1, '38400-999', 'Rua João Pinheiro', '1000', 'Centro',1);
+INSERT INTO viafood.tb_restaurantes (id,nome, taxa_frete,cozinha_id,data_cadastro,data_atualizacao,endereco_cidade_id,endereco_cep,endereco_logradouro,endereco_numero,endereco_bairro, ativo) values (3,'KingBox', 10.90, 3,utc_timestamp, utc_timestamp,1, '38400-999', 'Rua João Pinheiro', '1000', 'Centro',1);
+INSERT INTO viafood.tb_restaurantes (id,nome, taxa_frete,cozinha_id,data_cadastro,data_atualizacao,endereco_cidade_id,endereco_cep,endereco_logradouro,endereco_numero,endereco_bairro, ativo) values (4,'Mamamia', 12.10, 4,utc_timestamp, utc_timestamp,1, '38400-999', 'Rua João Pinheiro', '1000', 'Centro',1);
 
 ######################################################### RESTAURANTES_PAGAMENTOS ########################################
 INSERT INTO tb_restaurantes_formas_pagamentos (restaurante_id, forma_pagamento_id ) values (1,1),(1,2),(1,3),(2,3),(3,2),(3,3);
@@ -89,10 +89,10 @@ INSERT INTO viafood.tb_permissoes (id,nome,descricao,data_cadastro,data_atualiza
 INSERT INTO viafood.tb_permissoes (id,nome,descricao,data_cadastro,data_atualizacao) values (4,'Master', 'Permite acesso total a todo o sistema.',utc_timestamp, utc_timestamp);
 
 ################################  CADASTRO DAS GRUPOS ###################################################################
-INSERT INTO viafood.tb_grupos (id, nome,data_cadastro,data_atualizacao) values (1, 'Administradores',utc_timestamp, utc_timestamp);
-INSERT INTO viafood.tb_grupos (id, nome,data_cadastro,data_atualizacao) values (2, 'Gerentes ',utc_timestamp, utc_timestamp);
-INSERT INTO viafood.tb_grupos (id, nome,data_cadastro,data_atualizacao) values (3, 'Comercial',utc_timestamp, utc_timestamp);
-INSERT INTO viafood.tb_grupos (id, nome,data_cadastro,data_atualizacao) values (4, 'Suporte Técnico',utc_timestamp, utc_timestamp);
+INSERT INTO viafood.tb_grupos (id, descricao_grupo,data_cadastro,data_atualizacao) values (1, 'Administradores',utc_timestamp, utc_timestamp);
+INSERT INTO viafood.tb_grupos (id, descricao_grupo,data_cadastro,data_atualizacao) values (2, 'Gerentes ',utc_timestamp, utc_timestamp);
+INSERT INTO viafood.tb_grupos (id, descricao_grupo,data_cadastro,data_atualizacao) values (3, 'Comercial',utc_timestamp, utc_timestamp);
+INSERT INTO viafood.tb_grupos (id, descricao_grupo,data_cadastro,data_atualizacao) values (4, 'Suporte Técnico',utc_timestamp, utc_timestamp);
 
 ######################################################### USUARIOS #######################################################
 INSERT INTO viafood.tb_usuarios (id, nome, email, senha,data_cadastro,data_atualizacao) values (1, 'Carlos Barbosa G. Filho', 'cbarbosagomesfilho@gmail.com', '123mudar',utc_timestamp, utc_timestamp);

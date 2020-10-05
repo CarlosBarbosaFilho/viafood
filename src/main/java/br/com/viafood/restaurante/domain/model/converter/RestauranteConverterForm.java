@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import br.com.viafood.cidade.domain.model.Cidade;
 import br.com.viafood.cozinha.domain.model.Cozinha;
 import br.com.viafood.restaurante.domain.model.Restaurante;
 import br.com.viafood.restaurante.domain.model.form.RestauranteForm;
@@ -28,6 +29,9 @@ public class RestauranteConverterForm {
 	
 	public void copyRestauranteFormToRestaurante(RestauranteForm restauranteForm, Restaurante restaurante) {
 		restaurante.setCozinha(new Cozinha());
+		if(restaurante.getEndereco() != null) {
+			restaurante.getEndereco().setCidade(new Cidade());
+		}
 		this.modelMapper.map(restauranteForm, restaurante);
 	}
 }

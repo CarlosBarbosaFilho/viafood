@@ -16,4 +16,6 @@ import org.springframework.data.repository.NoRepositoryBean;
 public interface CustomJpaRepository<T,ID> extends JpaRepository<T, ID> {
 
 	Optional<T> buscaPrimeiroCadastro();
+	
+	void detached(T entity);
 }

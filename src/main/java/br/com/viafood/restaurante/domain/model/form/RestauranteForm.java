@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
 import br.com.viafood.core.annotation.TaxaFrete;
-import br.com.viafood.cozinha.domain.model.form.CozinhaForm;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,8 +21,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RestauranteForm {
-	
-	private Long id;
 	
 	@NotBlank
 	private String nome;
@@ -36,4 +33,8 @@ public class RestauranteForm {
 	@Valid
 	@NotNull
 	private CozinhaIdRestauranteForm cozinha;
+	
+	@Valid
+	@NotNull
+	private EnderecoRestauranteForm endereco;
 }

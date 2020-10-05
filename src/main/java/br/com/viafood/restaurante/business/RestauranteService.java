@@ -15,6 +15,8 @@ import br.com.viafood.restaurante.domain.model.Restaurante;
 public interface RestauranteService {
 	
 	public void desativarRestaurante(Long id);
+	
+	public void ativarRestaurante(Long id);
 
 	public List<Restaurante> list();
 	

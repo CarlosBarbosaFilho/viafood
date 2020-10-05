@@ -19,5 +19,9 @@ public final class Constantes {
 	public final static String VERIFIQUE_SINTAXE_DA_REQUISICAO = "Verifique a sintaxe do corpo da requisição";
 	public final static String OCORREU_ERRO_INTERNO_NO_SISTEMA = "Ocorreu um erro interno no sistema. Tente novamente mais tarde! Se o problema persistir, entre em contato com a administração ";
 	public final static String RECURSO_ACESSADO_NAO_ENCONTRADO_OU_NAO_EXITE = "O recurso '%s' que você tentou acessar não existe";
-	
+	public final static String FORMA_DE_PAGAMENTO_NAO_ENCONTRADA = "Forma de pagamento não localizada ou não existe";
+	public final static String GRUPO_NAO_ENCONTRADO = "Grupo não encontrado ou não existe";
+	public final static String USUARIO_NAO_ENCONTRADO = "Usuário não encontrado ou não existe";
+	public final static String SENHAS_NAO_CONFEREM = "As senhas informadas não conferem";
+	public final static String EMAIL_JA_CADASTRADO = "Já existe um e-mail %s cadastrado no sistema";
 }
