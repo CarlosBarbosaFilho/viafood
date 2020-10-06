@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import br.com.viafood.pagamento.domain.model.FormaPagamento;
 import br.com.viafood.restaurante.domain.model.Restaurante;
 import br.com.viafood.restaurante.infrastructure.repository.RestauranteRepositoryCustom;
 import br.com.viafood.utils.infrastrutura.CustomJpaRepository;
@@ -31,5 +32,5 @@ public interface RestauranteRepository
 	
 	@Query("From Restaurante rs join fetch rs.cozinha")
 	public List<Restaurante> findAll();
-
+	
 }

@@ -17,6 +17,7 @@ import br.com.viafood.cidade.exception.CidadeNaoEncontradaException;
 import br.com.viafood.cozinha.domain.repository.CozinhaRepository;
 import br.com.viafood.cozinha.exception.CozinhaNaoEncontradaException;
 import br.com.viafood.exceptions.exception.EntidadeComDependencia;
+import br.com.viafood.pagamento.domain.model.FormaPagamento;
 import br.com.viafood.restaurante.domain.model.Restaurante;
 import br.com.viafood.restaurante.domain.repository.RestauranteRepository;
 import br.com.viafood.restaurante.exception.RestauranteNaoEncotradoExeption;
@@ -99,6 +100,14 @@ public class RestauranteServiceImpl implements RestauranteService {
 					String.format("Entidade com %d não pode ser removida, existem dependências vinculdas", id));
 		}
 	}
+	
+	@Override
+	public List<FormaPagamento> listaFormaPagamentoRestaurante(Long idRestaurante) {
+		Restaurante restaurante = this.repository.findById(idRestaurante).orElseThrow(() -> {
+			throw new RestauranteNaoEncotradoExeption(idRestaurante);
+		});
+		return restaurante.getFormasPagamentos();
+	}
 
 	@Override
 	public List<Restaurante> listaRestaurantesPorFaixaDeTaxaFrete(BigDecimal taxaInicial, BigDecimal taxaFinal) {
@@ -126,4 +135,6 @@ public class RestauranteServiceImpl implements RestauranteService {
 		Optional<Restaurante> restaurante = this.repository.buscaPrimeiroCadastro();
 		return restaurante.get();
 	}
+
+	
 }
